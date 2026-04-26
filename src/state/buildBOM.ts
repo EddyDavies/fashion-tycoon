@@ -1,6 +1,6 @@
-import chroma from 'chroma-js'
 import type { DesignState } from './designState'
 import { isHoodie, isTshirt, isShirt } from './designState'
+import { hexToPantone } from '../utils/hexToPantone'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

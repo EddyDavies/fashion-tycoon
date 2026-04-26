@@ -6,6 +6,7 @@ import ShirtPreview from './garments/ShirtPreview'
 
 interface Props {
   state: DesignState
+  mode?: 'design' | 'print'
 }
 
 export function GarmentPreview({ state }: Props) {

@@ -10,6 +10,7 @@ import {
 
 type Props = {
   state: DesignState
+  triggerImmediately?: boolean
 }
 
 type Phase =
@@ -18,15 +19,13 @@ type Phase =
   | { kind: 'ready'; result: RenderResult }
   | { kind: 'error'; message: string }
 
-export function RenderPreview({ state }: Props) {
+export function RenderPreview({ state, triggerImmediately = false }: Props) {
   const [phase, setPhase] = useState<Phase>(() => {
     const cached = getCachedRender(state)
     return cached ? { kind: 'ready', result: cached } : { kind: 'idle' }
   })
   const [activeVariant, setActiveVariant] = useState<RenderVariant>('model')
 
-  // Track the design key of the current in-flight request so stale results
-  // from a superseded design state are silently dropped into cache but not shown.
   const inflight = useRef<string | null>(null)
 
   // Reset to idle (or cached) whenever the design changes.
@@ -34,6 +33,11 @@ export function RenderPreview({ state }: Props) {
     const cached = getCachedRender(state)
     setPhase(cached ? { kind: 'ready', result: cached } : { kind: 'idle' })
   }, [buildCacheKey(state)]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Auto-trigger on mount when requested (e.g. switching to the render tab).
+  useEffect(() => {
+    if (triggerImmediately) trigger()
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   async function trigger() {
     if (phase.kind === 'loading') return

@@ -58,7 +58,7 @@ type SpecMap = Partial<Record<string, Spec>>
 // Hood, drawstring, pocket, zipper entries are always included here;
 // buildPOM() removes inapplicable ones based on DesignState.details.
 
-const HOODIE_SPECS: Record<DesignState['silhouette'], SpecMap> = {
+const HOODIE_SPECS: Record<string, SpecMap> = {
   regular: {
     chestWidth:        { value: 55,   tolerance: 1.5 },
     bodyLengthFront:   { value: 70,   tolerance: 1.5 },
@@ -84,34 +84,6 @@ const HOODIE_SPECS: Record<DesignState['silhouette'], SpecMap> = {
     pocketHeight:      { value: 18,   tolerance: 0.5 },
     pocketFromHem:     { value: 4.0,  tolerance: 0.5 },
     zipperLength:      { value: 65,   tolerance: 1.0 },
-  },
-
-  // Cropped: shorter body, slightly narrower chest and hem; hood unchanged.
-  cropped: {
-    chestWidth:        { value: 53,   tolerance: 1.5 },
-    bodyLengthFront:   { value: 55,   tolerance: 1.5 },
-    bodyLengthBack:    { value: 57,   tolerance: 1.5 },
-    shoulderWidth:     { value: 47,   tolerance: 1.0 },
-    sleeveLength:      { value: 62,   tolerance: 1.5 },
-    armholeDepth:      { value: 24,   tolerance: 1.0 },
-    bicepWidth:        { value: 19.5, tolerance: 1.0 },
-    elbowWidth:        { value: 16.5, tolerance: 1.0 },
-    cuffWidth:         { value: 9.0,  tolerance: 0.5 },
-    cuffHeight:        { value: 7,    tolerance: 0.5 },
-    hemWidth:          { value: 52,   tolerance: 1.5 },
-    hemRibHeight:      { value: 6,    tolerance: 0.5 },
-    backNeckWidth:     { value: 19,   tolerance: 0.5 },
-    frontNeckDrop:     { value: 11,   tolerance: 0.5 },
-    backNeckDrop:      { value: 3.0,  tolerance: 0.3 },
-    neckRibHeight:     { value: 2.0,  tolerance: 0.3 },
-    hoodDepth:         { value: 35,   tolerance: 1.5 },
-    hoodWidth:         { value: 27,   tolerance: 1.0 },
-    hoodOpening:       { value: 22,   tolerance: 1.0 },
-    drawstringChannel: { value: 1.5,  tolerance: 0.3 },
-    pocketWidth:       { value: 22,   tolerance: 0.5 },
-    pocketHeight:      { value: 15,   tolerance: 0.5 },
-    pocketFromHem:     { value: 3.0,  tolerance: 0.5 },
-    zipperLength:      { value: 50,   tolerance: 1.0 },
   },
 
   // Oversized: drop shoulder, wide chest, longer body, larger hood.
@@ -176,7 +148,7 @@ const HOODIE_SPECS: Record<DesignState['silhouette'], SpecMap> = {
 // No hood/drawstring/zipper entries. Pocket entries present but filtered out
 // when details.pocket === 'none'.
 
-const TSHIRT_SPECS: Record<DesignState['silhouette'], SpecMap> = {
+const TSHIRT_SPECS: Record<string, SpecMap> = {
   regular: {
     chestWidth:        { value: 50,   tolerance: 1.5 },
     bodyLengthFront:   { value: 71,   tolerance: 1.5 },
@@ -194,25 +166,6 @@ const TSHIRT_SPECS: Record<DesignState['silhouette'], SpecMap> = {
     pocketWidth:       { value: 14,   tolerance: 0.5 },
     pocketHeight:      { value: 14,   tolerance: 0.5 },
     pocketFromHem:     { value: 3.5,  tolerance: 0.5 },
-  },
-
-  cropped: {
-    chestWidth:        { value: 48,   tolerance: 1.5 },
-    bodyLengthFront:   { value: 53,   tolerance: 1.5 },
-    bodyLengthBack:    { value: 55,   tolerance: 1.5 },
-    shoulderWidth:     { value: 43,   tolerance: 1.0 },
-    sleeveLength:      { value: 21,   tolerance: 1.0 },
-    armholeDepth:      { value: 21,   tolerance: 1.0 },
-    bicepWidth:        { value: 17.5, tolerance: 1.0 },
-    sleeveOpening:     { value: 17.0, tolerance: 0.5 },
-    hemWidth:          { value: 46,   tolerance: 1.5 },
-    backNeckWidth:     { value: 18,   tolerance: 0.5 },
-    frontNeckDrop:     { value: 9.0,  tolerance: 0.5 },
-    backNeckDrop:      { value: 2.5,  tolerance: 0.3 },
-    neckRibHeight:     { value: 1.5,  tolerance: 0.3 },
-    pocketWidth:       { value: 13,   tolerance: 0.5 },
-    pocketHeight:      { value: 13,   tolerance: 0.5 },
-    pocketFromHem:     { value: 3.0,  tolerance: 0.5 },
   },
 
   // hemWidth matches chestWidth; drop shoulder.
@@ -291,7 +244,7 @@ export function buildPOM(state: DesignState): POMTable {
     ['hoodDepth', 'hoodWidth', 'hoodOpening'].forEach(id => excluded.add(id))
   if (!isHoodie || !state.details.drawstrings)
     excluded.add('drawstringChannel')
-  if (state.details.pocket === 'none')
+  if (!('pocket' in state.details) || (state.details as { pocket: string }).pocket === 'none')
     ['pocketWidth', 'pocketHeight', 'pocketFromHem'].forEach(id => excluded.add(id))
   if (!isHoodie || !state.details.zipper)
     excluded.add('zipperLength')

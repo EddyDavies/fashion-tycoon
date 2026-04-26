@@ -10,11 +10,9 @@ const materialLabels: Record<DesignState['material'], string> = {
   fleece: 'Heavyweight Fleece',
   technical: 'Technical Fabric',
   denim: 'Denim',
-  leather: 'Leather',
 }
 
 const silhouetteLabels: Record<DesignState['silhouette'], string> = {
-  cropped: 'Cropped',
   regular: 'Regular',
   oversized: 'Oversized',
   boxy: 'Boxy',
@@ -166,7 +164,7 @@ function ArchiveMobile({ brandName, garmentLine, material, silhouette, season, e
   )
 }
 
-function EditorialDesktop({ brandName, garmentLine, material, silhouette, season, edition }: PreviewProps) {
+function EditorialDesktop({ brandName, garmentLine: _garmentLine, material, silhouette, season, edition }: PreviewProps) {
   return (
     <div className="ae-editorial">
       <div className="ed-head">
@@ -202,7 +200,7 @@ function EditorialDesktop({ brandName, garmentLine, material, silhouette, season
   )
 }
 
-function EditorialMobile({ brandName, garmentLine, material, silhouette, season, edition }: PreviewProps) {
+function EditorialMobile({ brandName, garmentLine: _garmentLine, material, silhouette, season, edition }: PreviewProps) {
   return (
     <div className="ae-editorial-mob">
       <div className="em-head">
@@ -278,7 +276,7 @@ function HybridDesktop({ brandName, garmentLine, material, silhouette, season, e
   )
 }
 
-function HybridMobile({ brandName, garmentLine, material, silhouette, season, edition }: PreviewProps) {
+function HybridMobile({ brandName, garmentLine: _garmentLine, material, silhouette, season, edition }: PreviewProps) {
   const ticker = brandName.toUpperCase().split(' ')
   return (
     <div className="ae-hybrid-mob">

@@ -1,17 +1,19 @@
 /**
  * Hex → nearest Pantone TCX (textile) colour lookup.
  *
- * Pure TypeScript — no runtime dependencies.
- * Uses CIE Lab colour space + CIEDE2000 distance formula.
+ * Uses chroma-js for sRGB → CIE Lab conversion (D65, 2° observer),
+ * then CIEDE2000 to find the perceptually nearest entry in the lookup table.
  *
  * Accuracy: ±2–10 ΔE from "true" nearest Pantone. Adequate as a starting
  * reference for supplier conversations; always confirm against a physical
  * Pantone TCX fan deck before approving production colour.
+ *
+ * Pantone® is a trademark of Pantone LLC; codes are approximate references.
  */
 
-// ---------------------------------------------------------------------------
-// Pantone TCX reference table
-// ---------------------------------------------------------------------------
+import chroma from 'chroma-js'
+
+// ─── Pantone TCX reference table ─────────────────────────────────────────────
 
 type PantoneEntry = { name: string; hex: string }
 
@@ -90,26 +92,7 @@ const PANTONE_TCX: PantoneEntry[] = [
   { name: 'Pantone 19-1118 TCX Toasted Coconut', hex: '#402818' },
 ]
 
-// ---------------------------------------------------------------------------
-// Colour math — no runtime dependencies
-// ---------------------------------------------------------------------------
-
-function hexToRgb(hex: string): [number, number, number] {
-  const h = hex.replace('#', '')
-  return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)]
-}
-
-function rgbToLab(r: number, g: number, b: number): [number, number, number] {
-  let lr = r / 255, lg = g / 255, lb = b / 255
-  lr = lr > 0.04045 ? Math.pow((lr + 0.055) / 1.055, 2.4) : lr / 12.92
-  lg = lg > 0.04045 ? Math.pow((lg + 0.055) / 1.055, 2.4) : lg / 12.92
-  lb = lb > 0.04045 ? Math.pow((lb + 0.055) / 1.055, 2.4) : lb / 12.92
-  const x = (lr * 0.4124564 + lg * 0.3575761 + lb * 0.1804375) / 0.95047
-  const y = (lr * 0.2126729 + lg * 0.7151522 + lb * 0.0721750) / 1.00000
-  const z = (lr * 0.0193339 + lg * 0.1191920 + lb * 0.9503041) / 1.08883
-  const f = (t: number) => t > 0.008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116
-  return [116 * f(y) - 16, 500 * (f(x) - f(y)), 200 * (f(y) - f(z))]
-}
+// ─── CIEDE2000 ────────────────────────────────────────────────────────────────
 
 function deltaE2000(lab1: [number, number, number], lab2: [number, number, number]): number {
   const [L1, a1, b1] = lab1
@@ -154,42 +137,37 @@ function deltaE2000(lab1: [number, number, number], lab2: [number, number, numbe
   const SH = 1 + 0.015 * Cbarp * T
   const Cbarp7 = Cbarp ** 7
   const RC = 2 * Math.sqrt(Cbarp7 / (Cbarp7 + 25 ** 7))
-  const RT = -Math.sin(deg(60 * Math.exp(-((hbarp - 275) / 25) ** 2))) * RC
+  const RT = -(Math.sin(deg(60 * Math.exp(-Math.pow((hbarp - 275) / 25, 2)))) * RC)
   return Math.sqrt((dLp / SL) ** 2 + (dCp / SC) ** 2 + (dHp / SH) ** 2 + RT * (dCp / SC) * (dHp / SH))
 }
 
-// Pre-compute Lab values once at module load
+// Pre-compute Lab values at module load using chroma-js (D65/2° observer).
 const PANTONE_LAB = PANTONE_TCX.map(e => ({
   ...e,
-  lab: rgbToLab(...hexToRgb(e.hex)),
+  lab: chroma(e.hex).lab() as [number, number, number],
 }))
 
-// ---------------------------------------------------------------------------
-// Public API
-// ---------------------------------------------------------------------------
+// ─── Public API ───────────────────────────────────────────────────────────────
 
 export interface PantoneMatch {
-  name: string   // e.g. "Pantone 18-4051 TCX Classic Blue"
-  hex: string    // reference hex from Pantone table
-  deltaE: number // CIEDE2000 distance — < 2 imperceptible, 2–5 close, > 10 loose ref
+  name: string    // e.g. "Pantone 19-4024 TCX Classic Navy"
+  hex: string     // reference hex from the lookup table
+  deltaE: number  // CIEDE2000 distance — < 2 imperceptible, 2–5 close, > 10 loose ref
 }
 
-/** Returns nearest Pantone TCX entry for a given hex colour. */
+/** Returns the nearest Pantone TCX entry for a given hex colour, with distance. */
 export function hexToNearestPantone(hex: string): PantoneMatch {
-  const targetLab = rgbToLab(...hexToRgb(hex))
+  const lab = chroma(hex).lab() as [number, number, number]
   let best = PANTONE_LAB[0]
   let bestDelta = Infinity
   for (const entry of PANTONE_LAB) {
-    const d = deltaE2000(targetLab, entry.lab)
+    const d = deltaE2000(lab, entry.lab)
     if (d < bestDelta) { bestDelta = d; best = entry }
   }
   return { name: best.name, hex: best.hex, deltaE: bestDelta }
 }
 
-/**
- * Returns the full Pantone name string for use in BOM / tech pack copy.
- * e.g. "Pantone 19-4340 TCX Navy Peony"
- */
+/** Returns the Pantone name string for use in BOM / tech pack copy. */
 export function hexToPantone(hex: string): string {
   return hexToNearestPantone(hex).name
 }
