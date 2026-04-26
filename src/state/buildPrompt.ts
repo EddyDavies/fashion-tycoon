@@ -1,10 +1,16 @@
 import type { DesignState } from './designState'
+import { isHoodie, isTshirt } from './designState'
 
 const silhouetteMap: Record<DesignState['silhouette'], string> = {
-  cropped: 'cropped fit',
   regular: 'regular fit',
   oversized: 'oversized',
   boxy: 'boxy cut',
+}
+
+const garmentNameMap: Record<DesignState['garmentType'], string> = {
+  hoodie: 'hoodie',
+  tshirt: 't-shirt',
+  shirt: 'shirt',
 }
 
 const materialMap: Record<DesignState['material'], string> = {
@@ -12,7 +18,6 @@ const materialMap: Record<DesignState['material'], string> = {
   fleece: 'heavyweight fleece',
   technical: 'technical performance fabric',
   denim: 'denim',
-  leather: 'leather',
 }
 
 const patternMap: Record<DesignState['colour']['pattern'], (primary: string, secondary: string) => string> = {
@@ -38,16 +43,29 @@ export function buildPrompt(state: DesignState): string {
   const photoStyle = photoStyleMap[state.brand.identity]
 
   const details: string[] = []
-  if (state.details.hood !== 'none') details.push(`${state.details.hood} hood`)
-  if (state.details.pocket !== 'none') details.push(state.details.pocket === 'kangaroo' ? 'kangaroo pocket' : 'split hem pockets')
-  if (state.details.zipper) details.push('full-zip closure')
-  if (state.details.drawstrings) details.push('adjustable drawstrings')
-  if (state.details.embroidery) details.push('embroidered detailing')
+  if (isHoodie(state)) {
+    if (state.details.hood !== 'none') details.push(`${state.details.hood} hood`)
+    if (state.details.pocket !== 'none') details.push(state.details.pocket === 'kangaroo' ? 'kangaroo pocket' : 'split hem pockets')
+    if (state.details.zipper) details.push('full-zip closure')
+    if (state.details.drawstrings) details.push('adjustable drawstrings')
+    if (state.details.embroidery) details.push('embroidered detailing')
+  } else if (isTshirt(state)) {
+    details.push({ crew: 'crew neck', vneck: 'V-neck', scoop: 'scoop neck' }[state.details.neckline])
+    details.push({ short: 'short sleeves', long: 'long sleeves', sleeveless: 'sleeveless' }[state.details.sleeves])
+    if (state.details.hem !== 'straight') details.push(`${state.details.hem} hem`)
+    if (state.details.graphic) details.push('graphic print')
+  } else {
+    details.push(`${state.details.sleeve} sleeve`)
+    details.push({ standard: 'point collar', band: 'band collar', spread: 'spread collar' }[state.details.collar])
+    if (state.details.pocket) details.push('chest pocket')
+    if (state.details.embroidery) details.push('embroidered detailing')
+  }
 
+  const garmentName = garmentNameMap[state.garmentType]
   const detailsStr = details.length > 0 ? `, ${details.join(', ')}` : ''
 
   return [
-    `Photorealistic product photograph of a ${silhouette} ${material} hoodie ${colour}${detailsStr}.`,
+    `Photorealistic product photograph of a ${silhouette} ${material} ${garmentName} ${colour}${detailsStr}.`,
     photoStyle + '.',
     'High-quality fashion photography, sharp fabric detail.',
   ].join(' ')

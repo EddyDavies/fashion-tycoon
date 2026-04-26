@@ -1,4 +1,6 @@
+import chroma from 'chroma-js'
 import type { DesignState } from './designState'
+import { isHoodie, isTshirt, isShirt } from './designState'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -16,7 +18,7 @@ export type BOMItem = {
   category: BOMItemCategory
   description: string
   composition?: string
-  weight?: string    // e.g. '320 GSM' or '0.9–1.1 mm'
+  weight?: string    // e.g. '320 GSM'
   width?: string     // e.g. '60 in (152 cm)'
   quantity: string   // e.g. '2.2 m' or '1 unit'
   colour?: string    // Pantone reference or descriptor
@@ -35,10 +37,9 @@ export type BOM = {
   secondaryColour: ColourRef
 }
 
-// ─── Pantone TCX approximate lookup ──────────────────────────────────────────
-// Nearest match via Euclidean RGB distance — sufficient for sample-stage refs.
-// For production accuracy replace with CIE ΔE2000 distance in Lab colour space.
-// Pantone® is a trademark of Pantone LLC; codes listed here are approximations.
+// ─── Pantone TCX lookup + CIEDE2000 ──────────────────────────────────────────
+// chroma-js converts hex → CIE Lab; CIEDE2000 gives perceptually accurate
+// nearest match. Pantone® is a trademark of Pantone LLC; codes are approx refs.
 
 type PantoneEntry = { name: string; hex: string }
 
@@ -117,19 +118,79 @@ const PANTONE_TCX: PantoneEntry[] = [
   { name: 'Pantone 19-1118 TCX Toasted Coconut', hex: '#402818' },
 ]
 
-function hexToRgb(hex: string): [number, number, number] {
-  const c = hex.replace('#', '')
-  return [parseInt(c.slice(0, 2), 16), parseInt(c.slice(2, 4), 16), parseInt(c.slice(4, 6), 16)]
+// CIEDE2000 colour-difference formula. Inputs are CIE Lab triples [L, a, b].
+// Values < 2 are imperceptible to most observers.
+function deltaE2000(lab1: [number, number, number], lab2: [number, number, number]): number {
+  const [L1, a1, b1] = lab1
+  const [L2, a2, b2] = lab2
+
+  const C1 = Math.sqrt(a1 ** 2 + b1 ** 2)
+  const C2 = Math.sqrt(a2 ** 2 + b2 ** 2)
+  const Cbar7 = ((C1 + C2) / 2) ** 7
+  const G = 0.5 * (1 - Math.sqrt(Cbar7 / (Cbar7 + 25 ** 7)))
+
+  const a1p = a1 * (1 + G), a2p = a2 * (1 + G)
+  const C1p = Math.sqrt(a1p ** 2 + b1 ** 2)
+  const C2p = Math.sqrt(a2p ** 2 + b2 ** 2)
+
+  const toHp = (bp: number, ap: number) => {
+    const h = Math.atan2(bp, ap) * (180 / Math.PI)
+    return h >= 0 ? h : h + 360
+  }
+  const h1p = toHp(b1, a1p), h2p = toHp(b2, a2p)
+
+  const dLp = L2 - L1
+  const dCp = C2p - C1p
+  let dhp = 0
+  if (C1p * C2p !== 0) {
+    if (Math.abs(h2p - h1p) <= 180)    dhp = h2p - h1p
+    else if (h2p <= h1p)               dhp = h2p - h1p + 360
+    else                               dhp = h2p - h1p - 360
+  }
+  const dHp = 2 * Math.sqrt(C1p * C2p) * Math.sin((dhp / 2) * (Math.PI / 180))
+
+  const Lbarp = (L1 + L2) / 2
+  const Cbarp = (C1p + C2p) / 2
+  let hbarp = h1p + h2p
+  if (C1p * C2p !== 0) {
+    if (Math.abs(h1p - h2p) <= 180)         hbarp = (h1p + h2p) / 2
+    else if (h1p + h2p < 360)               hbarp = (h1p + h2p + 360) / 2
+    else                                     hbarp = (h1p + h2p - 360) / 2
+  }
+
+  const deg = (x: number) => x * (Math.PI / 180)
+  const T = 1
+    - 0.17 * Math.cos(deg(hbarp - 30))
+    + 0.24 * Math.cos(deg(2 * hbarp))
+    + 0.32 * Math.cos(deg(3 * hbarp + 6))
+    - 0.20 * Math.cos(deg(4 * hbarp - 63))
+
+  const SL = 1 + 0.015 * (Lbarp - 50) ** 2 / Math.sqrt(20 + (Lbarp - 50) ** 2)
+  const SC = 1 + 0.045 * Cbarp
+  const SH = 1 + 0.015 * Cbarp * T
+
+  const Cbarp7 = Cbarp ** 7
+  const RC = 2 * Math.sqrt(Cbarp7 / (Cbarp7 + 25 ** 7))
+  const RT = -Math.sin(deg(60 * Math.exp(-((hbarp - 275) / 25) ** 2))) * RC
+
+  return Math.sqrt(
+    (dLp / SL) ** 2 + (dCp / SC) ** 2 + (dHp / SH) ** 2 + RT * (dCp / SC) * (dHp / SH),
+  )
 }
 
+// Pre-compute Lab values at module load so each hexToPantone call is fast.
+const PANTONE_LAB = PANTONE_TCX.map(e => ({
+  ...e,
+  lab: chroma(e.hex).lab() as [number, number, number],
+}))
+
 export function hexToPantone(hex: string): string {
-  const [r, g, b] = hexToRgb(hex)
-  let nearest = PANTONE_TCX[0]
+  const lab = chroma(hex).lab() as [number, number, number]
+  let nearest = PANTONE_LAB[0]
   let minDist = Infinity
-  for (const entry of PANTONE_TCX) {
-    const [pr, pg, pb] = hexToRgb(entry.hex)
-    const dist = (r - pr) ** 2 + (g - pg) ** 2 + (b - pb) ** 2
-    if (dist < minDist) { minDist = dist; nearest = entry }
+  for (const entry of PANTONE_LAB) {
+    const d = deltaE2000(lab, entry.lab)
+    if (d < minDist) { minDist = d; nearest = entry }
   }
   return nearest.name
 }
@@ -168,30 +229,27 @@ const MATERIAL_SPECS: Record<DesignState['material'], MaterialSpec> = {
     weight: '11.5 oz (390 GSM)',
     width: '59 in (150 cm)',
   },
-  leather: {
-    description: 'Full-Grain Nappa Leather',
-    composition: '100% genuine lambskin',
-    weight: '0.9–1.1 mm thickness',
-    width: 'N/A — sold by sq ft',
-  },
 }
 
 // ─── Shell fabric consumption (size M) ───────────────────────────────────────
-// Quantities are per-unit estimates including seam allowance and pattern waste.
-// Leather in sq ft (hide units); all other materials in metres at stated width.
-// Hood variants and pocket cuts are absorbed in these estimates.
+// Per-unit estimates including seam allowance and pattern waste, in metres.
+// Hood variants and pocket cuts are absorbed in the hoodie estimates.
 
-const SHELL_QTY: Record<string, Record<DesignState['silhouette'], string>> = {
-  'hoodie-cotton':    { cropped: '1.8 m', regular: '2.2 m', oversized: '2.6 m', boxy: '2.4 m' },
-  'hoodie-fleece':    { cropped: '1.9 m', regular: '2.3 m', oversized: '2.7 m', boxy: '2.5 m' },
-  'hoodie-technical': { cropped: '1.8 m', regular: '2.2 m', oversized: '2.6 m', boxy: '2.4 m' },
-  'hoodie-denim':     { cropped: '1.9 m', regular: '2.3 m', oversized: '2.7 m', boxy: '2.5 m' },
-  'hoodie-leather':   { cropped: '24 sq ft', regular: '28 sq ft', oversized: '34 sq ft', boxy: '31 sq ft' },
-  'tshirt-cotton':    { cropped: '1.1 m', regular: '1.4 m', oversized: '1.7 m', boxy: '1.5 m' },
-  'tshirt-fleece':    { cropped: '1.2 m', regular: '1.5 m', oversized: '1.8 m', boxy: '1.6 m' },
-  'tshirt-technical': { cropped: '1.1 m', regular: '1.4 m', oversized: '1.7 m', boxy: '1.5 m' },
-  'tshirt-denim':     { cropped: '1.2 m', regular: '1.5 m', oversized: '1.8 m', boxy: '1.6 m' },
-  'tshirt-leather':   { cropped: '14 sq ft', regular: '17 sq ft', oversized: '21 sq ft', boxy: '19 sq ft' },
+type SilhouetteQty = Record<'regular' | 'oversized' | 'boxy', string>
+
+const SHELL_QTY: Record<string, SilhouetteQty> = {
+  'hoodie-cotton':    { regular: '2.2 m', oversized: '2.6 m', boxy: '2.4 m' },
+  'hoodie-fleece':    { regular: '2.3 m', oversized: '2.7 m', boxy: '2.5 m' },
+  'hoodie-technical': { regular: '2.2 m', oversized: '2.6 m', boxy: '2.4 m' },
+  'hoodie-denim':     { regular: '2.3 m', oversized: '2.7 m', boxy: '2.5 m' },
+  'tshirt-cotton':    { regular: '1.4 m', oversized: '1.7 m', boxy: '1.5 m' },
+  'tshirt-fleece':    { regular: '1.5 m', oversized: '1.8 m', boxy: '1.6 m' },
+  'tshirt-technical': { regular: '1.4 m', oversized: '1.7 m', boxy: '1.5 m' },
+  'tshirt-denim':     { regular: '1.5 m', oversized: '1.8 m', boxy: '1.6 m' },
+  'shirt-cotton':     { regular: '1.6 m', oversized: '1.9 m', boxy: '1.7 m' },
+  'shirt-fleece':     { regular: '1.7 m', oversized: '2.0 m', boxy: '1.8 m' },
+  'shirt-technical':  { regular: '1.6 m', oversized: '1.9 m', boxy: '1.7 m' },
+  'shirt-denim':      { regular: '1.7 m', oversized: '2.0 m', boxy: '1.8 m' },
 }
 
 // ─── Main export ──────────────────────────────────────────────────────────────
@@ -201,16 +259,11 @@ export function buildBOM(state: DesignState): BOM {
   let seq = 0
   const nextId = () => `bom-${String(++seq).padStart(3, '0')}`
 
-  // garmentType is currently typed as literal 'hoodie'; cast to accept future 'tshirt'
-  const garmentType = state.garmentType as 'hoodie' | 'tshirt'
-  const isHoodie = garmentType === 'hoodie'
-  const isLeather = state.material === 'leather'
-
   const primaryPantone   = hexToPantone(state.colour.primary)
   const secondaryPantone = hexToPantone(state.colour.secondary)
 
-  const spec = MATERIAL_SPECS[state.material]
-  const shellQty = SHELL_QTY[`${garmentType}-${state.material}`]?.[state.silhouette] ?? '2.2 m'
+  const spec    = MATERIAL_SPECS[state.material]
+  const shellQty = SHELL_QTY[`${state.garmentType}-${state.material}`]?.[state.silhouette] ?? '2.2 m'
 
   // 1 — Shell fabric
   items.push({
@@ -224,40 +277,157 @@ export function buildBOM(state: DesignState): BOM {
     colour: primaryPantone,
   })
 
-  // 2 — Rib knit for cuffs and waistband
-  // Leather garments use self-material cuffs; all knit fabrics use rib.
-  if (!isLeather) {
+  // 2 — Rib knit: cuffs + waistband (hoodie), neckband only (tshirt)
+  // Shirts use woven facing, not rib.
+  if (!isShirt(state)) {
     items.push({
       id: nextId(),
       category: 'fabric',
-      description: 'Cuff & waistband rib knit',
+      description: 'Rib knit',
       composition: '95% cotton / 5% spandex',
       weight: '300 GSM',
       width: '60 in (152 cm)',
-      quantity: isHoodie ? '0.6 m' : '0.3 m',
+      quantity: isHoodie(state) ? '0.6 m' : '0.3 m',
       colour: primaryPantone,
-      notes: isHoodie
+      notes: isHoodie(state)
         ? 'Cut 2 sleeve cuffs (22 × 14 cm each) + 1 waistband (66 × 14 cm)'
         : 'Cut 1 neckband (54 × 7 cm)',
     })
   }
 
-  // 3 — Pocket bag lining (split pocket only — kangaroo uses shell fabric)
-  if (state.details.pocket === 'split') {
+  // 3 — Garment-type-specific items
+  if (isHoodie(state)) {
+    if (state.details.pocket === 'split') {
+      items.push({
+        id: nextId(),
+        category: 'lining',
+        description: 'Pocket bag lining',
+        composition: '65% polyester / 35% cotton',
+        weight: '120 GSM',
+        width: '60 in (152 cm)',
+        quantity: '0.25 m',
+        colour: 'Natural / unbleached',
+        notes: 'Two pocket bags; each approx. 18 × 22 cm; cut 2 pieces per bag',
+      })
+    }
+
+    if (state.details.zipper) {
+      const zipLen = state.silhouette === 'oversized' ? '70 cm' : '65 cm'
+      items.push({
+        id: nextId(),
+        category: 'hardware',
+        description: `Centre-front separating zipper, ${zipLen}, gun-metal finish`,
+        quantity: '1 unit',
+        colour: 'Gun-metal (or match brand hardware finish)',
+        supplier: 'YKK #5 metal open-end (OE) separating',
+        notes: 'Confirm finish (gun-metal / antique brass / nickel) at proto stage',
+      })
+    }
+
+    if (state.details.drawstrings && state.details.hood !== 'none') {
+      items.push({
+        id: nextId(),
+        category: 'trim',
+        description: 'Hood drawcord — flat woven, 5 mm wide × 140 cm',
+        composition: '100% cotton',
+        quantity: '1 length per unit',
+        colour: `Colour-matched to ${primaryPantone}`,
+        notes: 'Feeds through hood channel; exits both sides of front facing',
+      })
+      items.push({
+        id: nextId(),
+        category: 'hardware',
+        description: 'Metal aglet tips for drawcord ends',
+        quantity: '2 per unit',
+        colour: 'Gun-metal',
+        notes: 'Match finish to zipper hardware where applicable',
+      })
+    }
+
+    if (state.details.embroidery) {
+      items.push({
+        id: nextId(),
+        category: 'trim',
+        description: 'Embroidery thread — 40-weight rayon',
+        composition: '100% rayon',
+        weight: '40-weight (135 denier)',
+        quantity: 'As required per embroidery file',
+        colour: `${secondaryPantone} (accent) / ${primaryPantone} (fill)`,
+        supplier: 'Madeira Classic Rayon 40 or Isacord equivalent',
+      })
+      items.push({
+        id: nextId(),
+        category: 'trim',
+        description: 'Embroidery stabiliser backing',
+        composition: '100% polyester non-woven',
+        weight: '60 GSM',
+        quantity: '1 piece per embroidery area (min. 150 × 150 mm)',
+        notes: 'Tear-away for jersey/knit; cut-away for fleece',
+      })
+    }
+
+  } else if (isTshirt(state)) {
+    if (state.details.graphic) {
+      items.push({
+        id: nextId(),
+        category: 'trim',
+        description: 'Screen print / DTG graphic',
+        quantity: '1 placement per unit',
+        notes: 'Plastisol or water-based ink; artwork file required at proto stage',
+      })
+    }
+
+  } else if (isShirt(state)) {
     items.push({
       id: nextId(),
-      category: 'lining',
-      description: 'Pocket bag lining',
-      composition: '65% polyester / 35% cotton',
-      weight: '120 GSM',
-      width: '60 in (152 cm)',
-      quantity: '0.25 m',
-      colour: 'Natural / unbleached',
-      notes: 'Two pocket bags; each approx. 18 × 22 cm; cut 2 pieces per bag',
+      category: 'fabric',
+      description: 'Collar & cuff interfacing — woven fusible',
+      composition: '100% polyester',
+      weight: 'Medium weight',
+      quantity: '0.3 m',
+      notes: 'Applied to collar stand, collar leaf, and cuff pieces',
     })
+    items.push({
+      id: nextId(),
+      category: 'hardware',
+      description: 'Buttons — 11 mm resin, 4-hole',
+      quantity: 'Approx. 7–9 front placket + 2 cuff per unit',
+      colour: `Colour-matched to ${primaryPantone}`,
+      notes: 'Confirm finish at proto stage; spare button attached inside hem',
+    })
+    if (state.details.pocket) {
+      items.push({
+        id: nextId(),
+        category: 'fabric',
+        description: 'Chest patch pocket — self-fabric',
+        quantity: '1 per unit',
+        notes: 'Approx. 14 × 14 cm; bar-tacked at corners',
+      })
+    }
+    if (state.details.embroidery) {
+      items.push({
+        id: nextId(),
+        category: 'trim',
+        description: 'Embroidery thread — 40-weight rayon',
+        composition: '100% rayon',
+        weight: '40-weight (135 denier)',
+        quantity: 'As required per embroidery file',
+        colour: `${secondaryPantone} (accent) / ${primaryPantone} (fill)`,
+        supplier: 'Madeira Classic Rayon 40 or Isacord equivalent',
+      })
+      items.push({
+        id: nextId(),
+        category: 'trim',
+        description: 'Embroidery stabiliser backing',
+        composition: '100% polyester non-woven',
+        weight: '60 GSM',
+        quantity: '1 piece per embroidery area (min. 150 × 150 mm)',
+        notes: 'Cut-away stabiliser recommended for woven fabrics',
+      })
+    }
   }
 
-  // 4 — Overlock thread (main seams)
+  // 4 — Overlock thread (main seams — all garments)
   items.push({
     id: nextId(),
     category: 'thread',
@@ -269,11 +439,13 @@ export function buildBOM(state: DesignState): BOM {
     supplier: 'Coats EPIC or equivalent',
   })
 
-  // 5 — Coverseam thread (hems, cuffs, waistband attachment)
+  // 5 — Coverseam / lockstitch thread
   items.push({
     id: nextId(),
     category: 'thread',
-    description: 'Coverseam thread — 3-needle coverseam, hems and rib attachment',
+    description: isShirt(state)
+      ? 'Lockstitch thread — single-needle lockstitch, topstitching and seams'
+      : 'Coverseam thread — 3-needle coverseam, hems and rib attachment',
     composition: '100% spun polyester',
     weight: 'Tex 24 (Nm 80/2)',
     quantity: 'Approx. 40 m per unit',
@@ -281,67 +453,7 @@ export function buildBOM(state: DesignState): BOM {
     supplier: 'Coats EPIC or equivalent',
   })
 
-  // 6 — Zipper
-  if (state.details.zipper) {
-    const zipLen =
-      state.silhouette === 'cropped'   ? '55 cm' :
-      state.silhouette === 'oversized' ? '70 cm' : '65 cm'
-    items.push({
-      id: nextId(),
-      category: 'hardware',
-      description: `Centre-front separating zipper, ${zipLen}, gun-metal finish`,
-      quantity: '1 unit',
-      colour: 'Gun-metal (or match brand hardware finish)',
-      supplier: 'YKK #5 metal open-end (OE) separating',
-      notes: 'Confirm finish (gun-metal / antique brass / nickel) at proto stage',
-    })
-  }
-
-  // 7 — Drawcord + aglets (hoodie with hood only)
-  if (state.details.drawstrings && isHoodie && state.details.hood !== 'none') {
-    items.push({
-      id: nextId(),
-      category: 'trim',
-      description: 'Hood drawcord — flat woven, 5 mm wide × 140 cm',
-      composition: '100% cotton',
-      quantity: '1 length per unit',
-      colour: `Colour-matched to ${primaryPantone}`,
-      notes: 'Feeds through hood channel; exits both sides of front facing',
-    })
-    items.push({
-      id: nextId(),
-      category: 'hardware',
-      description: 'Metal aglet tips for drawcord ends',
-      quantity: '2 per unit',
-      colour: 'Gun-metal',
-      notes: 'Match finish to zipper hardware where applicable',
-    })
-  }
-
-  // 8 — Embroidery thread + stabiliser
-  if (state.details.embroidery) {
-    items.push({
-      id: nextId(),
-      category: 'trim',
-      description: 'Embroidery thread — 40-weight rayon',
-      composition: '100% rayon',
-      weight: '40-weight (135 denier)',
-      quantity: 'As required per embroidery file',
-      colour: `${secondaryPantone} (accent) / ${primaryPantone} (fill)`,
-      supplier: 'Madeira Classic Rayon 40 or Isacord equivalent',
-    })
-    items.push({
-      id: nextId(),
-      category: 'trim',
-      description: 'Embroidery stabiliser backing',
-      composition: '100% polyester non-woven',
-      weight: '60 GSM',
-      quantity: '1 piece per embroidery area (min. 150 × 150 mm)',
-      notes: 'Tear-away for jersey/knit; cut-away for fleece or heavy fabric',
-    })
-  }
-
-  // 9 — Labels
+  // 6 — Labels (every garment)
   items.push({
     id: nextId(),
     category: 'label',
@@ -364,7 +476,7 @@ export function buildBOM(state: DesignState): BOM {
     notes: '75 × 25 mm folded; ISO care symbols + fibre composition; left side seam placement',
   })
 
-  // 10 — Hang tag + attachment string
+  // 7 — Hang tag + attachment string
   items.push({
     id: nextId(),
     category: 'packaging',
@@ -380,13 +492,13 @@ export function buildBOM(state: DesignState): BOM {
     notes: 'Black or natural; looped through care label or bartack point',
   })
 
-  // 11 — Polybag
+  // 8 — Polybag
   items.push({
     id: nextId(),
     category: 'packaging',
     description: 'Polybag — clear polypropylene, self-seal',
     quantity: '1 per unit',
-    notes: isHoodie ? '35 × 45 cm' : '30 × 40 cm',
+    notes: isHoodie(state) ? '35 × 45 cm' : '30 × 40 cm',
   })
 
   return {

@@ -1,6 +1,6 @@
 type BaseDesignState = {
   silhouette: 'regular' | 'oversized' | 'boxy'
-  material: 'cotton' | 'fleece' | 'technical' | 'denim' | 'leather'
+  material: 'cotton' | 'fleece' | 'technical' | 'denim'
   colour: {
     pattern: 'solid' | 'gradient' | 'stripe' | 'graphic' | 'camo'
     primary: string   // hex
