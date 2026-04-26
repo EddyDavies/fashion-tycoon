@@ -4,7 +4,7 @@ A fashion hoodie design game. Players configure silhouette, material, colour, an
 
 ## Stack
 
-React 19 · TypeScript 6 · Vite 8 · Phaser 3 (canvas rendering) · no test framework yet
+React 19 · TypeScript 6 · Vite 8 · no test framework yet
 
 ## Key files
 
@@ -23,10 +23,12 @@ React 19 · TypeScript 6 · Vite 8 · Phaser 3 (canvas rendering) · no test fra
 ## Dev commands
 
 ```bash
-npm run dev      # start local dev server
-npm run build    # type-check + build
-npm run lint     # eslint
+pnpm dev      # start local dev server
+pnpm build    # type-check + build
+pnpm lint     # eslint
 ```
+
+Use `pnpm` (not npm) for speed.
 
 ## Git
 
@@ -42,7 +44,7 @@ When multiple Claude instances are running in parallel:
 
 ## Rendering approach
 
-Use **Phaser 3** for the garment preview canvas. Each visual element (silhouette, detail layers, colour fill) is a Phaser sprite on a fixed-size canvas. This sidesteps the SVG coordinate alignment problem (open problem 1) — Phaser composites layers natively. Colour is applied via Phaser's tint system. The `GarmentPreview` React component wraps the Phaser game instance.
+Use **SVG technical flats** for the garment preview. `GarmentPreview.tsx` composites SVG layers in React — silhouette base + toggled detail overlays. All SVGs share `viewBox="0 0 400 560"` so layers align by coordinate space, not runtime positioning. Colour is a `<rect>` clipped to the silhouette outline, shown in `design` mode and stripped in `print` mode.
 
 ## Current priorities
 
