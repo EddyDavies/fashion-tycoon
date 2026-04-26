@@ -171,7 +171,7 @@ function deltaE2000(lab1: [number, number, number], lab2: [number, number, numbe
 
   const Cbarp7 = Cbarp ** 7
   const RC = 2 * Math.sqrt(Cbarp7 / (Cbarp7 + 25 ** 7))
-  const RT = -Math.sin(deg(60 * Math.exp(-((hbarp - 275) / 25) ** 2))) * RC
+  const RT = -(Math.sin(deg(60 * Math.exp(-(((hbarp - 275) / 25) ** 2))))) * RC
 
   return Math.sqrt(
     (dLp / SL) ** 2 + (dCp / SC) ** 2 + (dHp / SH) ** 2 + RT * (dCp / SC) * (dHp / SH),

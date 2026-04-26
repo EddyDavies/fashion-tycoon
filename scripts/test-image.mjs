@@ -60,25 +60,57 @@ const state = {
 }
 
 const prompt = buildPrompt(state)
-const model = process.env.IMAGE_MODEL ?? 'black-forest-labs/flux.2-pro'
+const model = process.env.IMAGE_MODEL ?? 'openai/gpt-5.4-image-2'
 
 console.log('DesignState:', JSON.stringify(state, null, 2))
 console.log('\nBuilt prompt:\n', prompt)
 console.log(`\nModel: ${model}`)
 console.log('\nSending to OpenRouter...')
 
-const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-  method: 'POST',
-  headers: {
-    'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({
-    model,
-    messages: [{ role: 'user', content: prompt }],
-    modalities: ['image'],
-  }),
-})
+const TIMEOUT_MS = 120_000
+const controller = new AbortController()
+const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS)
+
+const spinner = ['⠋','⠙','⠹','⠸','⠼','⠴','⠦','⠧','⠇','⠏']
+let tick = 0
+const start = Date.now()
+const interval = setInterval(() => {
+  const elapsed = ((Date.now() - start) / 1000).toFixed(1)
+  process.stdout.write(`\r${spinner[tick++ % spinner.length]}  Waiting... ${elapsed}s / ${TIMEOUT_MS / 1000}s`)
+}, 100)
+
+let res
+try {
+  res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model,
+      messages: [{ role: 'user', content: prompt }],
+      modalities: ['image'],
+    }),
+    signal: controller.signal,
+  })
+} catch (err) {
+  clearInterval(interval)
+  clearTimeout(timeout)
+  process.stdout.write('\n')
+  if (err.name === 'AbortError') {
+    console.error(`\nTimed out after ${TIMEOUT_MS / 1000}s — no response from OpenRouter.`)
+  } else {
+    console.error('\nFetch error:', err.message)
+    if (err.cause) console.error('Caused by:', err.cause)
+  }
+  process.exit(1)
+}
+
+clearInterval(interval)
+clearTimeout(timeout)
+const elapsed = ((Date.now() - start) / 1000).toFixed(1)
+process.stdout.write(`\r✓  Got response in ${elapsed}s                    \n`)
 
 const data = await res.json()
 
@@ -89,26 +121,39 @@ if (!res.ok) {
 
 console.log('\nFull response:', JSON.stringify(data, null, 2))
 
-// Images come back as base64 data URLs in content blocks
 const content = data.choices?.[0]?.message?.content
 const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)
 
+async function saveOrLog(url, label = 'image_url') {
+  if (!url) { console.log(`\n${label}: (empty)`); return }
+  const b64Match = url.match(/^data:image\/(\w+);base64,(.+)$/)
+  if (b64Match) {
+    const [, ext, b64] = b64Match
+    const file = join(outputDir, `${timestamp}.${ext}`)
+    writeFileSync(file, Buffer.from(b64, 'base64'))
+    console.log('\nSaved:', file)
+  } else if (url.startsWith('http')) {
+    console.log(`\nDownloading ${label}...`)
+    const imgRes = await fetch(url)
+    const contentType = imgRes.headers.get('content-type') ?? 'image/png'
+    const ext = contentType.split('/')[1]?.split(';')[0] ?? 'png'
+    const file = join(outputDir, `${timestamp}.${ext}`)
+    writeFileSync(file, Buffer.from(await imgRes.arrayBuffer()))
+    console.log('Saved:', file)
+  } else {
+    console.log(`\n${label}:`, url)
+  }
+}
+
 if (Array.isArray(content)) {
   for (const block of content) {
-    if (block.type === 'image_url') {
-      const dataUrl = block.image_url?.url ?? ''
-      const match = dataUrl.match(/^data:image\/(\w+);base64,(.+)$/)
-      if (match) {
-        const [, ext, b64] = match
-        const file = join(outputDir, `${timestamp}.${ext}`)
-        writeFileSync(file, Buffer.from(b64, 'base64'))
-        console.log('\nSaved:', file)
-      } else {
-        console.log('\nImage URL:', dataUrl)
-      }
-    }
-    if (block.type === 'text') console.log('\nText response:', block.text)
+    if (block.type === 'image_url') await saveOrLog(block.image_url?.url ?? '', 'image_url')
+    else if (block.type === 'image') await saveOrLog(block.source?.data ? `data:image/${block.source.media_type ?? 'png'};base64,${block.source.data}` : (block.url ?? ''), 'image')
+    else if (block.type === 'text') console.log('\nText:', block.text)
+    else console.log('\nUnknown block type:', JSON.stringify(block, null, 2))
   }
 } else if (typeof content === 'string') {
-  console.log('\nResponse:', content)
+  await saveOrLog(content, 'content')
+} else {
+  console.log('\nUnrecognised content shape — raw:', JSON.stringify(content, null, 2))
 }
