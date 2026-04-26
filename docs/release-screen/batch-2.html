@@ -1,0 +1,1573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Release Screen — Batch 2, Spiced</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600;700;900&family=Special+Elite&family=VT323&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #060606;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    padding: 40px 28px 80px;
+  }
+
+  .page-title {
+    text-align: center;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: #555;
+    margin-bottom: 4px;
+  }
+  .page-sub {
+    text-align: center;
+    font-size: 10px;
+    color: #333;
+    letter-spacing: 0.1em;
+    margin-bottom: 48px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    max-width: 1360px;
+    margin: 0 auto;
+  }
+
+  .card {
+    cursor: pointer;
+    transition: transform 0.2s ease;
+  }
+  .card:hover { transform: translateY(-3px); }
+  .card.selected .screen { outline: 1.5px solid #fff; }
+  .card.selected .screen::after {
+    content: '✓';
+    position: absolute;
+    top: 10px; right: 10px;
+    background: #fff; color: #000;
+    width: 20px; height: 20px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700;
+    z-index: 200;
+  }
+
+  .screen {
+    height: 500px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .card-label {
+    margin-top: 12px;
+    padding: 0 2px;
+  }
+  .card-label h3 {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #ccc;
+  }
+  .card-label p {
+    font-size: 10px;
+    color: #444;
+    margin-top: 3px;
+    letter-spacing: 0.04em;
+  }
+
+  /* ═══════════════════════════════════════════
+     C1 — THE VINYL
+     Your garment drop = an album release.
+     Vinyl sleeve aesthetic. Track listing
+     = specs. Very Kanye DONDA era.
+  ═══════════════════════════════════════════ */
+  .c1 {
+    background: #0e0e0e;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+  .c1-top {
+    display: flex;
+    gap: 0;
+    flex: 1;
+    overflow: hidden;
+  }
+  .c1-sleeve {
+    width: 50%;
+    background: #111;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    border-right: 1px solid #1a1a1a;
+    flex-shrink: 0;
+  }
+  .c1-sleeve-bg {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 60% 40%, #1a0a0a 0%, #0e0e0e 70%);
+  }
+  .c1-hoodie-art {
+    width: 100px;
+    height: 136px;
+    background: linear-gradient(135deg, #2a1010, #1a0808);
+    clip-path: polygon(20% 0%, 80% 0%, 95% 14%, 100% 100%, 0% 100%, 5% 14%);
+    position: relative;
+    z-index: 1;
+  }
+  .c1-catalogue {
+    position: absolute;
+    bottom: 10px;
+    left: 12px;
+    font-family: 'Space Mono', monospace;
+    font-size: 7px;
+    color: #333;
+    letter-spacing: 0.1em;
+    z-index: 2;
+  }
+  .c1-parental {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    border: 1px solid #333;
+    padding: 3px 5px;
+    font-size: 6px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: #333;
+    z-index: 2;
+    line-height: 1.3;
+    text-align: center;
+  }
+
+  .c1-info {
+    flex: 1;
+    padding: 16px 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+  }
+  .c1-artist {
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    color: #444;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .c1-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 22px;
+    font-weight: 900;
+    line-height: 1.05;
+    color: #fff;
+    letter-spacing: -0.01em;
+    margin-bottom: 12px;
+  }
+
+  .c1-tracklist {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border-top: 1px solid #1a1a1a;
+    padding-top: 10px;
+    flex: 1;
+    overflow: hidden;
+  }
+  .c1-track {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+    border-bottom: 1px solid #111;
+  }
+  .c1-track-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .c1-track-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 7px;
+    color: #2a2a2a;
+    width: 14px;
+  }
+  .c1-track-name {
+    font-size: 9px;
+    color: #666;
+    letter-spacing: 0.04em;
+  }
+  .c1-track-val {
+    font-size: 9px;
+    font-weight: 600;
+    color: #888;
+    letter-spacing: 0.02em;
+  }
+
+  .c1-side {
+    padding: 6px 0 0;
+    font-family: 'Space Mono', monospace;
+    font-size: 7px;
+    color: #222;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .c1-footer {
+    padding: 12px 16px;
+    border-top: 1px solid #111;
+    background: #0a0a0a;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .c1-label-info {
+    font-family: 'Space Mono', monospace;
+    font-size: 7px;
+    color: #2a2a2a;
+    letter-spacing: 0.1em;
+    line-height: 1.6;
+  }
+  .c1-btn {
+    background: #e8000a;
+    color: #fff;
+    border: none;
+    padding: 8px 18px;
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  /* ═══════════════════════════════════════════
+     C2 — THE CLASSIFIED
+     CIA dossier. Some specs redacted.
+     Typewriter font. Red TOP SECRET stamp.
+     Your brand launch = a covert operation.
+  ═══════════════════════════════════════════ */
+  .c2 {
+    background: #f5f0e2;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    color: #1a1a1a;
+    position: relative;
+    overflow: hidden;
+  }
+  .c2::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 28px,
+        rgba(0,0,0,0.04) 28px,
+        rgba(0,0,0,0.04) 29px
+      );
+    pointer-events: none;
+  }
+  .c2-header {
+    padding: 14px 18px;
+    border-bottom: 2px solid #1a1a1a;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    position: relative;
+    z-index: 1;
+  }
+  .c2-agency {
+    font-family: 'Special Elite', cursive;
+    font-size: 9px;
+    color: #555;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    line-height: 1.5;
+  }
+  .c2-file-num {
+    font-family: 'Special Elite', cursive;
+    font-size: 8px;
+    color: #888;
+    text-align: right;
+    line-height: 1.6;
+  }
+
+  .c2-stamp {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-18deg);
+    font-family: 'Inter', sans-serif;
+    font-size: 36px;
+    font-weight: 900;
+    color: rgba(180, 20, 20, 0.22);
+    letter-spacing: 0.08em;
+    border: 4px solid rgba(180, 20, 20, 0.22);
+    padding: 4px 12px;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 10;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+
+  .c2-body {
+    flex: 1;
+    padding: 14px 18px;
+    position: relative;
+    z-index: 1;
+  }
+  .c2-subject {
+    margin-bottom: 12px;
+  }
+  .c2-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 7px;
+    align-items: baseline;
+    font-family: 'Special Elite', cursive;
+    font-size: 9.5px;
+    color: #333;
+    line-height: 1.4;
+  }
+  .c2-key {
+    color: #888;
+    font-size: 8.5px;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+    width: 68px;
+    flex-shrink: 0;
+  }
+  .c2-val { color: #111; }
+
+  .c2-redact {
+    background: #111;
+    color: #111;
+    user-select: none;
+    padding: 0 6px;
+    display: inline;
+    font-size: 9px;
+    cursor: default;
+  }
+
+  .c2-divider {
+    border: none;
+    border-top: 1px solid #c8c0a8;
+    margin: 12px 0;
+  }
+
+  .c2-summary {
+    font-family: 'Special Elite', cursive;
+    font-size: 9px;
+    line-height: 1.8;
+    color: #555;
+    border-left: 2px solid #c8c0a8;
+    padding-left: 10px;
+    margin-bottom: 10px;
+  }
+
+  .c2-hoodie-stamp {
+    position: absolute;
+    right: 18px;
+    top: 14px;
+    width: 70px;
+    height: 90px;
+    border: 1px solid #c8c0a8;
+    background: #ede8d8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .c2-hoodie-shape {
+    width: 36px;
+    height: 48px;
+    background: #c8c0a8;
+    clip-path: polygon(20% 0%, 80% 0%, 95% 14%, 100% 100%, 0% 100%, 5% 14%);
+  }
+  .c2-exhibit {
+    position: absolute;
+    bottom: 4px;
+    font-family: 'Special Elite', cursive;
+    font-size: 6px;
+    color: #aaa;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .c2-footer {
+    padding: 10px 18px;
+    border-top: 2px solid #1a1a1a;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+  }
+  .c2-clearance {
+    font-family: 'Special Elite', cursive;
+    font-size: 8px;
+    color: #888;
+    letter-spacing: 0.08em;
+    line-height: 1.6;
+  }
+  .c2-btn {
+    background: #1a1a1a;
+    color: #f5f0e2;
+    border: none;
+    padding: 8px 18px;
+    font-family: 'Special Elite', cursive;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    cursor: pointer;
+    text-transform: uppercase;
+  }
+
+  /* ═══════════════════════════════════════════
+     C3 — THE AUCTION LOT
+     Christie's / Sotheby's. Your garment
+     as a lot item. Clinical luxury institution.
+     Gavel CTA.
+  ═══════════════════════════════════════════ */
+  .c3 {
+    background: #fafaf8;
+    color: #111;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  .c3-auction-header {
+    padding: 10px 18px;
+    border-bottom: 0.5px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .c3-house {
+    font-family: 'Playfair Display', serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: #111;
+  }
+  .c3-sale-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 7px;
+    color: #aaa;
+    letter-spacing: 0.1em;
+  }
+
+  .c3-lot-header {
+    padding: 10px 18px;
+    background: #111;
+    color: #fafaf8;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .c3-lot-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    font-style: italic;
+    line-height: 1;
+  }
+  .c3-lot-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 7px;
+    color: #888;
+    letter-spacing: 0.1em;
+    margin-top: 2px;
+  }
+  .c3-live-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.1em;
+    color: #d4a840;
+    border: 1px solid #d4a840;
+    padding: 3px 8px;
+  }
+
+  .c3-main {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    overflow: hidden;
+  }
+  .c3-left {
+    padding: 14px 18px;
+    border-right: 0.5px solid #eee;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow: hidden;
+  }
+  .c3-title-block {
+    font-family: 'Playfair Display', serif;
+  }
+  .c3-object-name {
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: #111;
+    margin-bottom: 2px;
+  }
+  .c3-object-sub {
+    font-size: 11px;
+    font-style: italic;
+    color: #888;
+  }
+  .c3-provenance {
+    font-family: 'Space Mono', monospace;
+    font-size: 7px;
+    color: #bbb;
+    letter-spacing: 0.1em;
+    line-height: 1.8;
+    border-top: 0.5px solid #eee;
+    padding-top: 8px;
+  }
+  .c3-provenance .prov-label {
+    color: #111;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-size: 7px;
+    margin-bottom: 4px;
+    display: block;
+  }
+
+  .c3-condition {
+    font-family: 'Playfair Display', serif;
+    font-size: 9px;
+    font-style: italic;
+    color: #888;
+    line-height: 1.6;
+    border-top: 0.5px solid #eee;
+    padding-top: 8px;
+  }
+
+  .c3-estimate-block {
+    border-top: 0.5px solid #eee;
+    padding-top: 8px;
+  }
+  .c3-est-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 7px;
+    color: #aaa;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+  .c3-estimate {
+    font-family: 'Playfair Display', serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: #111;
+  }
+
+  .c3-right {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f3f2ee;
+    position: relative;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .c3-lot-img {
+    width: 90px;
+    height: 120px;
+    background: #e4e2dc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .c3-hoodie {
+    width: 46px;
+    height: 62px;
+    background: #ccc;
+    clip-path: polygon(20% 0%, 80% 0%, 95% 14%, 100% 100%, 0% 100%, 5% 14%);
+  }
+  .c3-lot-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 7px;
+    color: #aaa;
+    letter-spacing: 0.1em;
+    text-align: center;
+    padding: 0 10px;
+  }
+
+  .c3-footer {
+    padding: 10px 18px;
+    border-top: 0.5px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .c3-bid-info {
+    font-family: 'Space Mono', monospace;
+    font-size: 7px;
+    color: #aaa;
+    letter-spacing: 0.08em;
+    line-height: 1.6;
+  }
+  .c3-bid-btn {
+    background: #111;
+    color: #fafaf8;
+    border: none;
+    padding: 9px 20px;
+    font-family: 'Playfair Display', serif;
+    font-size: 12px;
+    font-style: italic;
+    cursor: pointer;
+    letter-spacing: 0.03em;
+  }
+
+  /* ═══════════════════════════════════════════
+     C4 — THE ZINE
+     Photocopied, DIY punk/skate energy.
+     Mixed fonts, rough borders, xerox grain.
+     Supreme's first flyers. Anti-luxury.
+  ═══════════════════════════════════════════ */
+  .c4 {
+    background: #f4f0e8;
+    color: #111;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+  .c4::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E");
+    opacity: 0.5;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .c4-inner {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 14px;
+  }
+
+  .c4-title-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    gap: 8px;
+  }
+  .c4-big-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 64px;
+    line-height: 0.85;
+    color: #111;
+    letter-spacing: 0.01em;
+  }
+  .c4-issue-box {
+    border: 3px solid #111;
+    padding: 6px 8px;
+    text-align: center;
+    flex-shrink: 0;
+    margin-top: 6px;
+  }
+  .c4-issue-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    line-height: 1;
+    color: #111;
+  }
+  .c4-issue-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 6px;
+    color: #666;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    display: block;
+  }
+
+  .c4-cut-line {
+    border: none;
+    border-top: 2px dashed #ccc;
+    margin: 8px 0;
+  }
+
+  .c4-content {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 10px;
+    flex: 1;
+  }
+  .c4-text-col {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .c4-handwritten-label {
+    font-family: 'Special Elite', cursive;
+    font-size: 9px;
+    color: #888;
+    letter-spacing: 0.06em;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 3px;
+    margin-bottom: 1px;
+  }
+  .c4-item-text {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: #111;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+  .c4-story-box {
+    border: 1.5px solid #111;
+    padding: 8px;
+    background: #ece8de;
+  }
+  .c4-story-text {
+    font-family: 'Special Elite', cursive;
+    font-size: 8.5px;
+    line-height: 1.7;
+    color: #444;
+  }
+
+  .c4-img-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .c4-photo-box {
+    width: 100%;
+    aspect-ratio: 3/4;
+    background: #ddd8ce;
+    border: 2px solid #aaa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .c4-photo-box::after {
+    content: 'photo here';
+    position: absolute;
+    bottom: 4px;
+    right: 5px;
+    font-family: 'Special Elite', cursive;
+    font-size: 7px;
+    color: #aaa;
+  }
+  .c4-ph-hoodie {
+    width: 50px;
+    height: 68px;
+    background: #bbb5a8;
+    clip-path: polygon(20% 0%, 80% 0%, 95% 14%, 100% 100%, 0% 100%, 5% 14%);
+  }
+
+  .c4-footer-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 10px;
+    border-top: 2px solid #111;
+    margin-top: auto;
+  }
+  .c4-price-tag {
+    border: 2px solid #111;
+    padding: 4px 10px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    color: #111;
+    letter-spacing: 0.04em;
+    line-height: 1;
+  }
+  .c4-rel-btn {
+    background: #111;
+    color: #f4f0e8;
+    border: none;
+    padding: 8px 16px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+  }
+  .c4-paste-note {
+    font-family: 'Special Elite', cursive;
+    font-size: 8px;
+    color: #aaa;
+  }
+
+  /* ═══════════════════════════════════════════
+     C5 — THE SCOREBOARD
+     Stadium LED scoreboard. Your brand just
+     scored. Pixel dot-matrix font.
+     Athletic luxury (Fear of God Athletics).
+  ═══════════════════════════════════════════ */
+  .c5 {
+    background: #0a0a08;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .c5-board-top {
+    background: #0e0e0c;
+    border-bottom: 2px solid #1e1e1a;
+    padding: 10px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .c5-board-brand {
+    font-family: 'VT323', monospace;
+    font-size: 28px;
+    color: #e8c84a;
+    letter-spacing: 0.08em;
+    line-height: 1;
+  }
+  .c5-board-clock {
+    font-family: 'VT323', monospace;
+    font-size: 22px;
+    color: #e8c84a;
+    letter-spacing: 0.05em;
+    opacity: 0.5;
+  }
+
+  .c5-hero {
+    background: #0c0c0a;
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+  }
+  .c5-left-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 14px 16px;
+    border-right: 2px solid #1a1a16;
+  }
+  .c5-stat-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .c5-stat-label {
+    font-family: 'VT323', monospace;
+    font-size: 12px;
+    color: #3a3a30;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+  .c5-stat-value {
+    font-family: 'VT323', monospace;
+    font-size: 52px;
+    color: #e8c84a;
+    line-height: 0.9;
+    letter-spacing: 0.02em;
+  }
+  .c5-stat-unit {
+    font-family: 'VT323', monospace;
+    font-size: 12px;
+    color: #4a4a38;
+    letter-spacing: 0.15em;
+  }
+
+  .c5-stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #1a1a16;
+  }
+  .c5-stat-cell {
+    display: flex;
+    flex-direction: column;
+  }
+  .c5-cell-label {
+    font-family: 'VT323', monospace;
+    font-size: 11px;
+    color: #2e2e24;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  .c5-cell-val {
+    font-family: 'VT323', monospace;
+    font-size: 18px;
+    color: #888070;
+    letter-spacing: 0.04em;
+    line-height: 1;
+  }
+
+  .c5-right-panel {
+    width: 42%;
+    background: #0a0a08;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px;
+  }
+  .c5-garment-display {
+    width: 80px;
+    height: 108px;
+    border: 1px solid #1e1e16;
+    background: #0e0e0c;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .c5-garment-display::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.15) 2px,
+      rgba(0,0,0,0.15) 3px
+    );
+    pointer-events: none;
+  }
+  .c5-g-hoodie {
+    width: 42px;
+    height: 56px;
+    background: #252520;
+    clip-path: polygon(20% 0%, 80% 0%, 95% 14%, 100% 100%, 0% 100%, 5% 14%);
+  }
+  .c5-board-garment-name {
+    font-family: 'VT323', monospace;
+    font-size: 13px;
+    color: #3a3a2e;
+    letter-spacing: 0.1em;
+    text-align: center;
+    text-transform: uppercase;
+    line-height: 1.3;
+  }
+
+  .c5-ticker-row {
+    padding: 8px 0;
+    background: #e8c84a;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .c5-ticker-inner {
+    display: inline-block;
+    animation: ticker 14s linear infinite;
+    font-family: 'VT323', monospace;
+    font-size: 16px;
+    color: #0a0a08;
+    letter-spacing: 0.15em;
+  }
+  .c5-ticker-inner span { padding: 0 20px; }
+
+  .c5-cta-row {
+    padding: 12px 16px;
+    border-top: 2px solid #1a1a16;
+    background: #0a0a08;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .c5-quarter {
+    font-family: 'VT323', monospace;
+    font-size: 14px;
+    color: #2e2e24;
+    letter-spacing: 0.1em;
+    line-height: 1.4;
+  }
+  .c5-drop-btn {
+    background: #e8c84a;
+    color: #0a0a08;
+    border: none;
+    padding: 8px 20px;
+    font-family: 'VT323', monospace;
+    font-size: 20px;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    line-height: 1;
+  }
+
+  /* ═══════════════════════════════════════════
+     C6 — THE IPO
+     Bloomberg terminal. Your brand just went
+     public. Green-on-black, monospace, ticker
+     symbol, candlestick bars, market data.
+  ═══════════════════════════════════════════ */
+  .c6 {
+    background: #000;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Space Mono', monospace;
+    color: #00cc44;
+    overflow: hidden;
+  }
+  .c6-terminal-header {
+    padding: 8px 14px;
+    background: #001800;
+    border-bottom: 1px solid #003300;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .c6-th-left {
+    font-size: 8px;
+    color: #006600;
+    letter-spacing: 0.1em;
+    line-height: 1.6;
+  }
+  .c6-th-left .th-ticker {
+    font-size: 16px;
+    color: #00cc44;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+  }
+  .c6-th-right {
+    font-size: 8px;
+    color: #006600;
+    text-align: right;
+    letter-spacing: 0.08em;
+    line-height: 1.6;
+  }
+  .c6-th-right .th-price {
+    font-size: 22px;
+    color: #00ff55;
+    line-height: 1;
+    letter-spacing: 0.04em;
+  }
+  .c6-th-right .th-change {
+    font-size: 11px;
+    color: #00cc44;
+  }
+
+  .c6-chart-area {
+    height: 80px;
+    background: #000500;
+    border-bottom: 1px solid #002200;
+    padding: 8px 14px;
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    overflow: hidden;
+  }
+  .c6-bar {
+    background: #00aa33;
+    width: 8px;
+    opacity: 0.7;
+  }
+  .c6-bar.up { background: #00cc44; opacity: 1; }
+  .c6-bar.peak { background: #00ff55; opacity: 1; }
+
+  .c6-data-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-bottom: 1px solid #002200;
+  }
+  .c6-data-cell {
+    padding: 8px 14px;
+    border-right: 1px solid #001800;
+    border-bottom: 1px solid #001800;
+  }
+  .c6-data-cell:nth-child(even) { border-right: none; }
+  .c6-d-label {
+    font-size: 7px;
+    color: #005500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+  .c6-d-val {
+    font-size: 11px;
+    color: #00cc44;
+    letter-spacing: 0.04em;
+  }
+
+  .c6-news-feed {
+    flex: 1;
+    padding: 10px 14px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    border-bottom: 1px solid #002200;
+  }
+  .c6-nf-header {
+    font-size: 7px;
+    color: #004400;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+  .c6-news-item {
+    font-size: 8px;
+    color: #008833;
+    line-height: 1.5;
+    letter-spacing: 0.03em;
+    padding-left: 10px;
+    border-left: 1px solid #003300;
+  }
+  .c6-news-item .ni-time {
+    color: #004400;
+    margin-right: 6px;
+  }
+  .c6-news-item .ni-hl { color: #00cc44; }
+
+  .c6-garment-info {
+    padding: 8px 14px;
+    border-bottom: 1px solid #002200;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .c6-g-box {
+    width: 40px;
+    height: 54px;
+    border: 1px solid #002200;
+    background: #000500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .c6-gh {
+    width: 22px;
+    height: 28px;
+    background: #003300;
+    clip-path: polygon(20% 0%, 80% 0%, 95% 14%, 100% 100%, 0% 100%, 5% 14%);
+  }
+  .c6-g-text {
+    font-size: 8px;
+    color: #006600;
+    line-height: 1.8;
+    letter-spacing: 0.06em;
+  }
+  .c6-g-text .gt-name { color: #00cc44; font-size: 10px; letter-spacing: 0.04em; }
+
+  .c6-cta-bar {
+    padding: 10px 14px;
+    background: #001200;
+    border-top: 1px solid #003300;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .c6-mkt-status {
+    font-size: 7px;
+    color: #004400;
+    letter-spacing: 0.12em;
+    line-height: 1.6;
+  }
+  .c6-mkt-status .ms-open { color: #00ff55; }
+  .c6-ipo-btn {
+    background: #00cc44;
+    color: #000;
+    border: none;
+    padding: 8px 18px;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+</style>
+</head>
+<body>
+
+<p class="page-title">Release Screen — Batch 2</p>
+<p class="page-sub">Six new directions with more spice — click to select</p>
+
+<div class="grid">
+
+  <!-- C1: THE VINYL -->
+  <div class="card" data-choice="c1" onclick="toggleSelect(this)">
+    <div class="screen">
+      <div class="c1">
+        <div class="c1-top">
+          <div class="c1-sleeve">
+            <div class="c1-sleeve-bg"></div>
+            <div class="c1-hoodie-art"></div>
+            <div class="c1-catalogue">VST-001 · ℗ 2026</div>
+            <div class="c1-parental">EXPLICIT<br>CONTENT</div>
+          </div>
+          <div class="c1-info">
+            <div>
+              <div class="c1-artist">Void Studio</div>
+              <div class="c1-title">Collection<br>001</div>
+            </div>
+            <div>
+              <div class="c1-side">SIDE A — SPECIFICATIONS</div>
+              <div class="c1-tracklist">
+                <div class="c1-track">
+                  <div class="c1-track-left">
+                    <span class="c1-track-num">01</span>
+                    <span class="c1-track-name">Silhouette</span>
+                  </div>
+                  <span class="c1-track-val">Oversized</span>
+                </div>
+                <div class="c1-track">
+                  <div class="c1-track-left">
+                    <span class="c1-track-num">02</span>
+                    <span class="c1-track-name">Material</span>
+                  </div>
+                  <span class="c1-track-val">HW Fleece</span>
+                </div>
+                <div class="c1-track">
+                  <div class="c1-track-left">
+                    <span class="c1-track-num">03</span>
+                    <span class="c1-track-name">Hardware</span>
+                  </div>
+                  <span class="c1-track-val">YKK + Metal</span>
+                </div>
+                <div class="c1-track">
+                  <div class="c1-track-left">
+                    <span class="c1-track-num">04</span>
+                    <span class="c1-track-name">Edition</span>
+                  </div>
+                  <span class="c1-track-val">Limited 100</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="c1-footer">
+          <div class="c1-label-info">
+            VOID STUDIO RECORDS · VST-001<br>
+            ALL RIGHTS RESERVED · SS2026
+          </div>
+          <button class="c1-btn">Drop Now</button>
+        </div>
+      </div>
+    </div>
+    <div class="card-label">
+      <h3>C1 — The Vinyl</h3>
+      <p>Album sleeve · track listing = specs · Parental Advisory · label energy</p>
+    </div>
+  </div>
+
+  <!-- C2: THE CLASSIFIED -->
+  <div class="card" data-choice="c2" onclick="toggleSelect(this)">
+    <div class="screen">
+      <div class="c2">
+        <div class="c2-stamp">TOP SECRET</div>
+        <div class="c2-header">
+          <div class="c2-agency">
+            VOID STUDIO OPERATIONS<br>
+            INTERNAL DOCUMENT — DO NOT DISTRIBUTE
+          </div>
+          <div class="c2-file-num">
+            FILE NO: VST-001-SS26<br>
+            DATE: 26 APR 2026<br>
+            CLEARANCE: LEVEL 5
+          </div>
+        </div>
+        <div class="c2-body">
+          <div class="c2-hoodie-stamp">
+            <div class="c2-hoodie-shape"></div>
+            <div class="c2-exhibit">EXHIBIT A</div>
+          </div>
+          <div class="c2-subject">
+            <div class="c2-row"><span class="c2-key">SUBJECT:</span><span class="c2-val">Collection 001 — Inaugural Drop</span></div>
+            <div class="c2-row"><span class="c2-key">CODENAME:</span><span class="c2-val"><span class="c2-redact">OPERATION ONYX</span></span></div>
+            <div class="c2-row"><span class="c2-key">GARMENT:</span><span class="c2-val">Oversized Fleece Hoodie</span></div>
+          </div>
+          <hr class="c2-divider">
+          <div class="c2-row"><span class="c2-key">MATERIAL:</span><span class="c2-val">Heavyweight Fleece, <span class="c2-redact">SUPPLIER REDACTED</span></span></div>
+          <div class="c2-row"><span class="c2-key">SILHOUETTE:</span><span class="c2-val">Oversized — classified grading</span></div>
+          <div class="c2-row"><span class="c2-key">HARDWARE:</span><span class="c2-val">YKK · Metal aglets · <span class="c2-redact">COST REDACTED</span></span></div>
+          <div class="c2-row"><span class="c2-key">EDITION:</span><span class="c2-val">Limited to <span class="c2-redact">100</span> units</span></div>
+          <hr class="c2-divider">
+          <p class="c2-summary">"Designed to last. The brand's first garment. Unauthorised reproduction strictly prohibited."</p>
+        </div>
+        <div class="c2-footer">
+          <div class="c2-clearance">
+            AUTHORISED BY: ____________<br>
+            SIGNATURE: ________________
+          </div>
+          <button class="c2-btn">Authorise Release</button>
+        </div>
+      </div>
+    </div>
+    <div class="card-label">
+      <h3>C2 — The Classified</h3>
+      <p>CIA dossier · redacted specs · typewriter font · TOP SECRET stamp</p>
+    </div>
+  </div>
+
+  <!-- C3: THE AUCTION LOT -->
+  <div class="card" data-choice="c3" onclick="toggleSelect(this)">
+    <div class="screen">
+      <div class="c3">
+        <div class="c3-auction-header">
+          <div class="c3-house">Void Studio</div>
+          <div class="c3-sale-num">SALE VST-001 · SS26</div>
+        </div>
+        <div class="c3-lot-header">
+          <div>
+            <div class="c3-lot-num">Lot 001</div>
+            <div class="c3-lot-sub">INAUGURAL COLLECTION · 2026</div>
+          </div>
+          <div class="c3-live-badge">● LIVE</div>
+        </div>
+        <div class="c3-main">
+          <div class="c3-left">
+            <div class="c3-title-block">
+              <div class="c3-object-name">Oversized Fleece Hoodie</div>
+              <div class="c3-object-sub">Onyx colourway, Collection 001</div>
+            </div>
+            <div class="c3-provenance">
+              <span class="prov-label">Provenance</span>
+              Designed and produced SS2026.<br>
+              First garment from Void Studio.<br>
+              Factory: Canton Fair vetted.
+            </div>
+            <p class="c3-condition">"Heavyweight fleece. YKK hardware throughout. Metal aglets on flat woven drawstring. No ornamentation beyond what earns its place."</p>
+            <div class="c3-estimate-block">
+              <div class="c3-est-label">Edition</div>
+              <div class="c3-estimate">Limited to 100 units</div>
+            </div>
+          </div>
+          <div class="c3-right">
+            <div class="c3-lot-img">
+              <div class="c3-hoodie"></div>
+            </div>
+            <div class="c3-lot-label">Fig. 1 — Lot 001<br>Oversized Fleece, Onyx</div>
+          </div>
+        </div>
+        <div class="c3-footer">
+          <div class="c3-bid-info">
+            SALE VST-001 · SS26<br>
+            VOID STUDIO · EST. 2026
+          </div>
+          <button class="c3-bid-btn">Confirm & Release →</button>
+        </div>
+      </div>
+    </div>
+    <div class="card-label">
+      <h3>C3 — The Auction Lot</h3>
+      <p>Christie's provenance · lot numbering · condition report · gavel CTA</p>
+    </div>
+  </div>
+
+  <!-- C4: THE ZINE -->
+  <div class="card" data-choice="c4" onclick="toggleSelect(this)">
+    <div class="screen">
+      <div class="c4">
+        <div class="c4-inner">
+          <div class="c4-title-row">
+            <div class="c4-big-title">VOID<br>STUDIO</div>
+            <div class="c4-issue-box">
+              <span class="c4-issue-num">#1</span>
+              <span class="c4-issue-label">Issue</span>
+            </div>
+          </div>
+          <hr class="c4-cut-line">
+          <div class="c4-content">
+            <div class="c4-text-col">
+              <div>
+                <div class="c4-handwritten-label">garment type —</div>
+                <div class="c4-item-text">OS HOODIE</div>
+              </div>
+              <div>
+                <div class="c4-handwritten-label">made from —</div>
+                <div class="c4-item-text">HVY FLEECE</div>
+              </div>
+              <div>
+                <div class="c4-handwritten-label">hw —</div>
+                <div class="c4-item-text">YKK + METAL</div>
+              </div>
+              <div class="c4-story-box">
+                <p class="c4-story-text">"For the walks to the studio. The years before anyone knows your name. 100 made. Zero compromises."</p>
+              </div>
+            </div>
+            <div class="c4-img-col">
+              <div class="c4-photo-box">
+                <div class="c4-ph-hoodie"></div>
+              </div>
+            </div>
+          </div>
+          <div class="c4-footer-row">
+            <div class="c4-price-tag">ED. 1/100</div>
+            <span class="c4-paste-note">SS2026</span>
+            <button class="c4-rel-btn">DROP IT</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-label">
+      <h3>C4 — The Zine</h3>
+      <p>Xerox grain · cut-and-paste · handwritten labels · anti-luxury DIY</p>
+    </div>
+  </div>
+
+  <!-- C5: THE SCOREBOARD -->
+  <div class="card" data-choice="c5" onclick="toggleSelect(this)">
+    <div class="screen">
+      <div class="c5">
+        <div class="c5-board-top">
+          <div class="c5-board-brand">VOID STUDIO</div>
+          <div class="c5-board-clock">00:00</div>
+        </div>
+        <div class="c5-hero">
+          <div class="c5-left-panel">
+            <div class="c5-stat-block">
+              <span class="c5-stat-label">UNITS</span>
+              <span class="c5-stat-value">100</span>
+              <span class="c5-stat-unit">LIMITED EDITION</span>
+            </div>
+            <div class="c5-stat-grid">
+              <div class="c5-stat-cell">
+                <span class="c5-cell-label">Material</span>
+                <span class="c5-cell-val">HW FLEECE</span>
+              </div>
+              <div class="c5-stat-cell">
+                <span class="c5-cell-label">Fit</span>
+                <span class="c5-cell-val">OVERSIZED</span>
+              </div>
+              <div class="c5-stat-cell">
+                <span class="c5-cell-label">Hardware</span>
+                <span class="c5-cell-val">YKK</span>
+              </div>
+              <div class="c5-stat-cell">
+                <span class="c5-cell-label">Season</span>
+                <span class="c5-cell-val">SS26</span>
+              </div>
+            </div>
+          </div>
+          <div class="c5-right-panel">
+            <div class="c5-garment-display">
+              <div class="c5-g-hoodie"></div>
+            </div>
+            <div class="c5-board-garment-name">OVERSIZED<br>HOODIE<br>ONYX</div>
+          </div>
+        </div>
+        <div class="c5-ticker-row">
+          <div class="c5-ticker-inner">
+            <span>VOID STUDIO</span><span>DROP 001</span><span>SS26</span><span>100 UNITS</span><span>OS FLEECE HOODIE</span>
+            <span>VOID STUDIO</span><span>DROP 001</span><span>SS26</span><span>100 UNITS</span><span>OS FLEECE HOODIE</span>
+          </div>
+        </div>
+        <div class="c5-cta-row">
+          <div class="c5-quarter">
+            DROP 001<br>
+            COLLECTION READY
+          </div>
+          <button class="c5-drop-btn">RELEASE</button>
+        </div>
+      </div>
+    </div>
+    <div class="card-label">
+      <h3>C5 — The Scoreboard</h3>
+      <p>Stadium LED · dot matrix · amber digits · athletic luxury energy</p>
+    </div>
+  </div>
+
+  <!-- C6: THE IPO -->
+  <div class="card" data-choice="c6" onclick="toggleSelect(this)">
+    <div class="screen">
+      <div class="c6">
+        <div class="c6-terminal-header">
+          <div class="c6-th-left">
+            <div class="th-ticker">VST:GBL</div>
+            VOID STUDIO · INAUGURAL DROP
+          </div>
+          <div class="c6-th-right">
+            <div class="th-price">001</div>
+            <div class="th-change">▲ FIRST EDITION +∞%</div>
+          </div>
+        </div>
+        <div class="c6-chart-area">
+          <div class="c6-bar up" style="height:20px"></div>
+          <div class="c6-bar" style="height:28px"></div>
+          <div class="c6-bar up" style="height:22px"></div>
+          <div class="c6-bar" style="height:32px"></div>
+          <div class="c6-bar up" style="height:26px"></div>
+          <div class="c6-bar" style="height:38px"></div>
+          <div class="c6-bar up" style="height:30px"></div>
+          <div class="c6-bar up" style="height:42px"></div>
+          <div class="c6-bar" style="height:36px"></div>
+          <div class="c6-bar up" style="height:48px"></div>
+          <div class="c6-bar up" style="height:42px"></div>
+          <div class="c6-bar peak" style="height:60px"></div>
+        </div>
+        <div class="c6-data-grid">
+          <div class="c6-data-cell">
+            <div class="c6-d-label">Edition</div>
+            <div class="c6-d-val">1 OF 100</div>
+          </div>
+          <div class="c6-data-cell">
+            <div class="c6-d-label">Material</div>
+            <div class="c6-d-val">HW FLEECE</div>
+          </div>
+          <div class="c6-data-cell">
+            <div class="c6-d-label">Silhouette</div>
+            <div class="c6-d-val">OVERSIZED</div>
+          </div>
+          <div class="c6-data-cell">
+            <div class="c6-d-label">Season</div>
+            <div class="c6-d-val">SS2026</div>
+          </div>
+        </div>
+        <div class="c6-news-feed">
+          <div class="c6-nf-header">LATEST HEADLINES</div>
+          <div class="c6-news-item"><span class="ni-time">09:31</span><span class="ni-hl">VOID STUDIO completes inaugural collection design</span></div>
+          <div class="c6-news-item"><span class="ni-time">09:32</span>Oversized fleece hoodie confirmed for limited run of 100 units</div>
+          <div class="c6-news-item"><span class="ni-time">09:33</span>Canton Fair supplier match pending · YKK hardware confirmed</div>
+        </div>
+        <div class="c6-garment-info">
+          <div class="c6-g-box"><div class="c6-gh"></div></div>
+          <div class="c6-g-text">
+            <div class="gt-name">OS FLEECE HOODIE — ONYX</div>
+            VOID STUDIO · COLLECTION 001<br>
+            TICKER: VST:GBL · MARKET: OPEN
+          </div>
+        </div>
+        <div class="c6-cta-bar">
+          <div class="c6-mkt-status">
+            MARKET STATUS: <span class="ms-open">OPEN</span><br>
+            VST:GBL · COLLECTION READY
+          </div>
+          <button class="c6-ipo-btn">IPO — Release</button>
+        </div>
+      </div>
+    </div>
+    <div class="card-label">
+      <h3>C6 — The IPO</h3>
+      <p>Bloomberg terminal · green-on-black · ticker symbol · candlestick chart</p>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
