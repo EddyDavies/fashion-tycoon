@@ -4,15 +4,20 @@ A fashion hoodie design game. Players configure silhouette, material, colour, an
 
 ## Stack
 
-React 19 · TypeScript 6 · Vite 8 · no test framework yet
+React 19 · TypeScript 6 · Vite 8 · Phaser 3 (canvas rendering) · no test framework yet
 
 ## Key files
 
 | File | Purpose |
 |------|---------|
+| `soul.md` | Vision, feel, product thesis — read this first |
+| `architecture.md` | System shape, tech decisions, three outputs (flat/render/PDF) |
+| `to-do.md` | What's queued next |
+| `done.md` | Completed work history |
+| `docs/open-problems.md` | **Hard unsolved problems — read before touching SVG, PDF, or BOM** |
 | `src/state/designState.ts` | The data model — all player choices live here |
 | `src/state/buildPrompt.ts` | Converts a `DesignState` into an AI image prompt |
-| `docs/game-content-research.md` | **Content authority** — material variants, silhouettes, brand identity signals, Canton Fair brief |
+| `docs/game-content-research.md` | Content authority — material variants, silhouettes, Canton Fair brief |
 | `docs/ai-image-generation.md` | AI image integration notes |
 
 ## Dev commands
@@ -34,6 +39,10 @@ When multiple Claude instances are running in parallel:
 - After each commit, `.claude/work-log.md` is automatically updated with your branch and message.
 - Every 5 minutes, each agent fetches and surfaces recent commits from the log.
 - Check `.claude/work-log.md` directly if you want to see what other instances have done.
+
+## Rendering approach
+
+Use **Phaser 3** for the garment preview canvas. Each visual element (silhouette, detail layers, colour fill) is a Phaser sprite on a fixed-size canvas. This sidesteps the SVG coordinate alignment problem (open problem 1) — Phaser composites layers natively. Colour is applied via Phaser's tint system. The `GarmentPreview` React component wraps the Phaser game instance.
 
 ## Current priorities
 

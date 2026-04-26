@@ -8,6 +8,13 @@
             "type": "command",
             "if": "Bash(git commit*)",
             "command": "bash .claude/hooks/post-commit-log.sh"
+          },
+          {
+            "type": "agent",
+            "if": "Bash(git commit*)",
+            "statusMessage": "Checking implementation against plan...",
+            "timeout": 60,
+            "prompt": "A git commit was just made. Read soul.md, architecture.md, and run `git diff HEAD~1 HEAD` to see what changed. Check: does this commit align with the stated vision and architecture? Flag any drift, scope creep, or shortcuts that conflict with the plan. Be concise — one short paragraph. If everything looks aligned, say so in one sentence."
           }
         ]
       }
