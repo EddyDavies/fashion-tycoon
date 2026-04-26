@@ -26,6 +26,7 @@ dist-ssr
 # Project-specific
 .superpowers/
 .env
+scripts/output/
 
 # Multi-agent coordination (local only, not for git)
 .claude/work-log.md
