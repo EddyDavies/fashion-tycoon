@@ -1,0 +1,1367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Release Screen — 6 Directions</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600;700;900&family=EB+Garamond:ital,wght@0,400;0,700;1,400&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #080808;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    padding: 40px 28px 80px;
+  }
+
+  .page-title {
+    text-align: center;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: #555;
+    margin-bottom: 4px;
+  }
+  .page-sub {
+    text-align: center;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: #333;
+    margin-bottom: 48px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    max-width: 1360px;
+    margin: 0 auto;
+  }
+
+  .card {
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.2s ease;
+  }
+  .card:hover { transform: translateY(-3px); }
+  .card.selected .screen { outline: 1.5px solid #fff; }
+  .card.selected .screen::after {
+    content: '✓';
+    position: absolute;
+    top: 10px; right: 10px;
+    background: #fff;
+    color: #000;
+    width: 20px; height: 20px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700;
+    z-index: 100;
+  }
+
+  .screen {
+    height: 500px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .card-label {
+    margin-top: 12px;
+    padding: 0 2px;
+  }
+  .card-label h3 {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #ccc;
+  }
+  .card-label p {
+    font-size: 10px;
+    color: #444;
+    letter-spacing: 0.04em;
+    margin-top: 3px;
+  }
+
+  /* ═══════════════════════════════════════════
+     A1 — THE DROP, REFINED
+     A's urgency, cleaned up. Helvetica energy,
+     red only on the CTA, not everywhere.
+  ═══════════════════════════════════════════ */
+  .a1 {
+    background: #000;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  .a1 .nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 11px 18px;
+    border-bottom: 1px solid #111;
+  }
+  .a1 .nav-brand {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #fff;
+  }
+  .a1 .nav-meta {
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    color: #333;
+    letter-spacing: 0.1em;
+  }
+
+  .a1 .hero {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .a1 .hero-left {
+    padding: 20px 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border-right: 1px solid #111;
+  }
+  .a1 .drop-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 64px;
+    line-height: 0.88;
+    color: #fff;
+    letter-spacing: 0.01em;
+  }
+  .a1 .garment-line {
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    color: #333;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-top: 8px;
+  }
+  .a1 .spec-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .a1 .spec-row {
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #111;
+  }
+  .a1 .spec-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .a1 .spec-k {
+    font-family: 'Space Mono', monospace;
+    font-size: 7px;
+    color: #333;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .a1 .spec-v {
+    font-size: 9px;
+    font-weight: 600;
+    color: #888;
+    letter-spacing: 0.06em;
+  }
+
+  .a1 .hero-right {
+    background: #060606;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .a1 .img-box {
+    width: 110px;
+    height: 150px;
+    border: 1px solid #161616;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .a1 .img-box::before {
+    content: '';
+    position: absolute;
+    top: -1px; left: -1px;
+    width: 10px; height: 10px;
+    border-top: 1px solid #ff2020;
+    border-left: 1px solid #ff2020;
+  }
+  .a1 .img-box::after {
+    content: '';
+    position: absolute;
+    bottom: -1px; right: -1px;
+    width: 10px; height: 10px;
+    border-bottom: 1px solid #ff2020;
+    border-right: 1px solid #ff2020;
+  }
+  .a1 .hoodie-shape {
+    width: 56px;
+    height: 72px;
+    background: #181818;
+    clip-path: polygon(20% 0%, 80% 0%, 95% 14%, 100% 100%, 0% 100%, 5% 14%);
+  }
+  .a1 .edition-badge {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    font-family: 'Space Mono', monospace;
+    font-size: 7px;
+    color: #222;
+    letter-spacing: 0.1em;
+    writing-mode: vertical-rl;
+  }
+
+  .a1 .footer {
+    padding: 12px 18px;
+    border-top: 1px solid #111;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .a1 .edition-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    color: #fff;
+    line-height: 1;
+  }
+  .a1 .edition-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 7px;
+    color: #333;
+    letter-spacing: 0.12em;
+  }
+  .a1 .release-btn {
+    background: #ff2020;
+    color: #fff;
+    border: none;
+    padding: 9px 22px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+  }
+
+  .a1 .ticker {
+    padding: 7px 0;
+    background: #0d0d0d;
+    border-top: 1px solid #111;
+    overflow: hidden;
+    white-space: nowrap;
+    font-family: 'Space Mono', monospace;
+    font-size: 7.5px;
+    color: #333;
+    letter-spacing: 0.12em;
+  }
+  .a1 .ticker-inner {
+    display: inline-block;
+    animation: ticker 16s linear infinite;
+  }
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* ═══════════════════════════════════════════
+     A2 — THE BROADSHEET
+     A's black/white high contrast. Newspaper
+     broadsheet. Massive brand name at top,
+     editorial columns below.
+  ═══════════════════════════════════════════ */
+  .a2 {
+    background: #fff;
+    color: #000;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  .a2 .bs-header {
+    padding: 10px 16px;
+    border-bottom: 3px solid #000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .a2 .bs-dateline {
+    font-family: 'Space Mono', monospace;
+    font-size: 7px;
+    letter-spacing: 0.1em;
+    color: #666;
+  }
+  .a2 .bs-issue {
+    font-family: 'Space Mono', monospace;
+    font-size: 7px;
+    color: #aaa;
+  }
+
+  .a2 .masthead {
+    padding: 10px 16px 8px;
+    border-bottom: 1px solid #000;
+  }
+  .a2 .masthead-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 80px;
+    line-height: 0.85;
+    color: #000;
+    letter-spacing: 0.02em;
+  }
+  .a2 .masthead-tagline {
+    font-family: 'EB Garamond', serif;
+    font-size: 10px;
+    font-style: italic;
+    color: #666;
+    letter-spacing: 0.05em;
+    margin-top: 4px;
+  }
+
+  .a2 .columns {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 2fr 1.5fr;
+    border-bottom: 1px solid #000;
+  }
+  .a2 .col-main {
+    padding: 12px 16px;
+    border-right: 1px solid #000;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .a2 .hl {
+    font-family: 'EB Garamond', serif;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: #000;
+    margin-bottom: 8px;
+  }
+  .a2 .body-text {
+    font-family: 'EB Garamond', serif;
+    font-size: 9.5px;
+    line-height: 1.65;
+    color: #333;
+    column-count: 2;
+    column-gap: 12px;
+  }
+  .a2 .spec-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 8px;
+  }
+  .a2 .spec-table td {
+    font-family: 'Space Mono', monospace;
+    font-size: 7px;
+    padding: 3px 0;
+    border-top: 0.5px solid #ddd;
+    letter-spacing: 0.06em;
+  }
+  .a2 .spec-table td:first-child { color: #aaa; text-transform: uppercase; }
+  .a2 .spec-table td:last-child { color: #000; font-weight: 700; text-align: right; }
+
+  .a2 .col-img {
+    background: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .a2 .bs-hoodie {
+    width: 72px;
+    height: 96px;
+    background: #ccc;
+    clip-path: polygon(20% 0%, 80% 0%, 95% 14%, 100% 100%, 0% 100%, 5% 14%);
+  }
+  .a2 .img-caption {
+    font-family: 'EB Garamond', serif;
+    font-size: 8px;
+    font-style: italic;
+    color: #999;
+    text-align: center;
+    padding: 0 12px;
+  }
+
+  .a2 .bs-footer {
+    padding: 8px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .a2 .vol-info {
+    font-family: 'Space Mono', monospace;
+    font-size: 7px;
+    color: #aaa;
+    letter-spacing: 0.08em;
+  }
+  .a2 .bs-btn {
+    background: #000;
+    color: #fff;
+    border: none;
+    padding: 7px 18px;
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  /* ═══════════════════════════════════════════
+     A3 — THE ARCHIVE (Drop × Gold)
+     A's drop DNA but amber/gold accent.
+     Palace x Aimé Leon Dore energy.
+     More mature urgency.
+  ═══════════════════════════════════════════ */
+  .a3 {
+    background: #0a0a08;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  .a3 .archive-bar {
+    padding: 10px 18px;
+    border-bottom: 1px solid #1a1a14;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .a3 .archive-bar .ab-brand {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 0.05em;
+    color: #d4a840;
+  }
+  .a3 .archive-bar .ab-meta {
+    font-family: 'Space Mono', monospace;
+    font-size: 7.5px;
+    color: #333;
+    letter-spacing: 0.1em;
+  }
+
+  .a3 .archive-hero {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 0 18px;
+    position: relative;
+  }
+  .a3 .archive-hero::before {
+    content: 'VOID';
+    position: absolute;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 130px;
+    color: rgba(212,168,64,0.04);
+    letter-spacing: 0.05em;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+
+  .a3 .archive-garment {
+    width: 100px;
+    height: 136px;
+    border: 1px solid #1e1e14;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+  }
+  .a3 .a3-hoodie {
+    width: 52px;
+    height: 70px;
+    background: #1a1a12;
+    clip-path: polygon(20% 0%, 80% 0%, 95% 14%, 100% 100%, 0% 100%, 5% 14%);
+  }
+  .a3 .garment-id {
+    font-family: 'Space Mono', monospace;
+    font-size: 7px;
+    color: #2a2a20;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    z-index: 1;
+  }
+
+  .a3 .archive-meta {
+    width: 100%;
+    border-top: 1px solid #1a1a14;
+    padding-top: 12px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    z-index: 1;
+  }
+  .a3 .am-col {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 0 10px;
+    border-right: 1px solid #1a1a14;
+  }
+  .a3 .am-col:first-child { padding-left: 0; }
+  .a3 .am-col:last-child { border-right: none; }
+  .a3 .am-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 6.5px;
+    color: #2e2e22;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  .a3 .am-val {
+    font-size: 9px;
+    font-weight: 600;
+    color: #666;
+    letter-spacing: 0.04em;
+  }
+
+  .a3 .archive-footer {
+    padding: 12px 18px;
+    border-top: 1px solid #1a1a14;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .a3 .af-left {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .a3 .af-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 6.5px;
+    color: #2e2e22;
+    letter-spacing: 0.16em;
+  }
+  .a3 .af-count {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    color: #d4a840;
+    line-height: 1;
+  }
+  .a3 .archive-btn {
+    border: 1px solid #d4a840;
+    background: transparent;
+    color: #d4a840;
+    padding: 8px 20px;
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  /* ═══════════════════════════════════════════
+     B1 — DARK EDITORIAL
+     B's magazine structure on a dark field.
+     i-D magazine meets Porter.
+  ═══════════════════════════════════════════ */
+  .b1 {
+    background: #111;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    color: #e8e2d8;
+  }
+  .b1 .mag-head {
+    padding: 10px 18px;
+    border-bottom: 0.5px solid #222;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .b1 .mag-wordmark {
+    font-family: 'Playfair Display', serif;
+    font-size: 14px;
+    font-style: italic;
+    color: #e8e2d8;
+    letter-spacing: 0.03em;
+  }
+  .b1 .mag-issue {
+    font-family: 'Space Mono', monospace;
+    font-size: 7px;
+    color: #444;
+    letter-spacing: 0.12em;
+  }
+
+  .b1 .spread {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    overflow: hidden;
+  }
+  .b1 .left {
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border-right: 0.5px solid #222;
+  }
+  .b1 .coll-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 7px;
+    color: #444;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .b1 .big-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 40px;
+    font-weight: 700;
+    line-height: 0.95;
+    color: #e8e2d8;
+  }
+  .b1 .coll-subtitle {
+    font-family: 'Playfair Display', serif;
+    font-size: 12px;
+    font-style: italic;
+    color: #555;
+    margin-top: 6px;
+  }
+  .b1 .story {
+    font-family: 'Playfair Display', serif;
+    font-size: 9.5px;
+    font-style: italic;
+    line-height: 1.7;
+    color: #555;
+    padding-top: 12px;
+    border-top: 0.5px solid #222;
+  }
+  .b1 .b1-specs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .b1 .b1-spec-k {
+    font-family: 'Space Mono', monospace;
+    font-size: 6.5px;
+    color: #333;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+  .b1 .b1-spec-v {
+    font-size: 9px;
+    color: #666;
+    font-weight: 500;
+  }
+
+  .b1 .right {
+    background: #0d0d0d;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    gap: 10px;
+  }
+  .b1 .b1-img {
+    width: 100px;
+    height: 136px;
+    background: #191919;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .b1 .b1-hoodie {
+    width: 52px;
+    height: 70px;
+    background: #252525;
+    clip-path: polygon(20% 0%, 80% 0%, 95% 14%, 100% 100%, 0% 100%, 5% 14%);
+  }
+  .b1 .folio {
+    font-family: 'Playfair Display', serif;
+    font-size: 52px;
+    font-weight: 700;
+    color: #1a1a1a;
+    position: absolute;
+    bottom: 10px;
+    right: 14px;
+    line-height: 1;
+  }
+  .b1 .material-note {
+    font-family: 'Space Mono', monospace;
+    font-size: 7px;
+    color: #333;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .b1 .mag-footer {
+    padding: 10px 18px;
+    border-top: 0.5px solid #222;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .b1 .edition-note {
+    font-family: 'Space Mono', monospace;
+    font-size: 7px;
+    color: #333;
+    letter-spacing: 0.1em;
+  }
+  .b1 .b1-btn {
+    background: transparent;
+    border: 0.5px solid #444;
+    color: #e8e2d8;
+    padding: 7px 18px;
+    font-family: 'Playfair Display', serif;
+    font-size: 11px;
+    font-style: italic;
+    cursor: pointer;
+    letter-spacing: 0.03em;
+  }
+
+  /* ═══════════════════════════════════════════
+     B2 — THE LOOKBOOK
+     Portrait garment is the hero. B's editorial
+     restraint, garment image centred and large,
+     copy in a thin bar at the bottom.
+  ═══════════════════════════════════════════ */
+  .b2 {
+    background: #f2ece2;
+    color: #1a1a1a;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  .b2 .lk-top {
+    padding: 10px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 0.5px solid #d4ccc0;
+  }
+  .b2 .lk-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: #1a1a1a;
+    letter-spacing: 0.05em;
+  }
+  .b2 .lk-coll {
+    font-family: 'Space Mono', monospace;
+    font-size: 7px;
+    color: #aaa;
+    letter-spacing: 0.12em;
+  }
+
+  .b2 .lk-hero {
+    flex: 1;
+    background: #e8e0d4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .b2 .lk-img {
+    width: 130px;
+    height: 180px;
+    background: #d8d0c4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  }
+  .b2 .lk-hoodie {
+    width: 70px;
+    height: 94px;
+    background: #bbb4a8;
+    clip-path: polygon(20% 0%, 80% 0%, 95% 14%, 100% 100%, 0% 100%, 5% 14%);
+  }
+  .b2 .lk-corner {
+    position: absolute;
+    font-family: 'Playfair Display', serif;
+    font-size: 9px;
+    font-style: italic;
+    color: #c0b8ac;
+    letter-spacing: 0.04em;
+  }
+  .b2 .lk-corner.tl { top: 14px; left: 18px; }
+  .b2 .lk-corner.br { bottom: 14px; right: 18px; }
+
+  .b2 .lk-caption {
+    padding: 12px 18px;
+    border-top: 0.5px solid #d4ccc0;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 16px;
+  }
+  .b2 .lk-caption-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 10px;
+    font-style: italic;
+    color: #888;
+    line-height: 1.5;
+  }
+  .b2 .lk-btn {
+    background: #1a1a1a;
+    color: #f2ece2;
+    border: none;
+    padding: 8px 18px;
+    font-family: 'Playfair Display', serif;
+    font-size: 11px;
+    font-style: italic;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .b2 .lk-specs-row {
+    padding: 8px 18px;
+    border-top: 0.5px solid #d4ccc0;
+    display: flex;
+    justify-content: space-between;
+  }
+  .b2 .lk-spec {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .b2 .lk-sk {
+    font-family: 'Space Mono', monospace;
+    font-size: 6.5px;
+    color: #bbb;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .b2 .lk-sv {
+    font-size: 9px;
+    font-weight: 500;
+    color: #888;
+  }
+
+  /* ═══════════════════════════════════════════
+     AB — THE HYBRID
+     True fusion. Cream background (B),
+     Bebas brand name (A), magazine structure (B),
+     red release CTA (A), ticker (A).
+  ═══════════════════════════════════════════ */
+  .ab {
+    background: #f0ece4;
+    color: #111;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  .ab .ab-header {
+    padding: 8px 18px;
+    border-bottom: 2px solid #111;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .ab .ab-brand {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    letter-spacing: 0.02em;
+    color: #111;
+    line-height: 1;
+  }
+  .ab .ab-header-right {
+    text-align: right;
+  }
+  .ab .ab-vol {
+    font-family: 'Space Mono', monospace;
+    font-size: 7px;
+    color: #aaa;
+    letter-spacing: 0.12em;
+  }
+  .ab .ab-drop-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 7px;
+    color: #ff2020;
+    letter-spacing: 0.12em;
+    font-weight: 700;
+  }
+
+  .ab .ab-body {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    overflow: hidden;
+  }
+  .ab .ab-left {
+    padding: 14px 18px;
+    border-right: 1px solid #ccc;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .ab .ab-headline {
+    font-family: 'EB Garamond', serif;
+    font-size: 19px;
+    font-weight: 700;
+    line-height: 1.15;
+    color: #111;
+    margin-bottom: 6px;
+  }
+  .ab .ab-story {
+    font-family: 'EB Garamond', serif;
+    font-size: 9.5px;
+    font-style: italic;
+    line-height: 1.65;
+    color: #777;
+  }
+  .ab .ab-speclist {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-top: 10px;
+    border-top: 0.5px solid #ccc;
+  }
+  .ab .ab-spec-row {
+    display: flex;
+    justify-content: space-between;
+  }
+  .ab .ab-sk {
+    font-family: 'Space Mono', monospace;
+    font-size: 7px;
+    color: #bbb;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .ab .ab-sv {
+    font-size: 8.5px;
+    font-weight: 600;
+    color: #666;
+  }
+
+  .ab .ab-right {
+    background: #e6e0d4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    position: relative;
+  }
+  .ab .ab-ghost {
+    position: absolute;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 80px;
+    color: rgba(0,0,0,0.04);
+    pointer-events: none;
+    letter-spacing: 0.02em;
+  }
+  .ab .ab-img {
+    width: 100px;
+    height: 136px;
+    border: 1px solid #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ddd7cb;
+    position: relative;
+    z-index: 1;
+  }
+  .ab .ab-img::before {
+    content: '';
+    position: absolute;
+    top: -1px; left: -1px;
+    width: 8px; height: 8px;
+    border-top: 1px solid #ff2020;
+    border-left: 1px solid #ff2020;
+  }
+  .ab .ab-img::after {
+    content: '';
+    position: absolute;
+    bottom: -1px; right: -1px;
+    width: 8px; height: 8px;
+    border-bottom: 1px solid #ff2020;
+    border-right: 1px solid #ff2020;
+  }
+  .ab .ab-hoodie {
+    width: 52px;
+    height: 70px;
+    background: #c8c0b4;
+    clip-path: polygon(20% 0%, 80% 0%, 95% 14%, 100% 100%, 0% 100%, 5% 14%);
+  }
+  .ab .ab-edition {
+    font-family: 'Space Mono', monospace;
+    font-size: 7px;
+    color: #aaa;
+    letter-spacing: 0.12em;
+    position: relative;
+    z-index: 1;
+  }
+
+  .ab .ab-footer {
+    padding: 10px 18px;
+    border-top: 2px solid #111;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .ab .ab-edition-large {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    color: #111;
+    line-height: 1;
+  }
+  .ab .ab-edition-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 6.5px;
+    color: #aaa;
+    letter-spacing: 0.1em;
+  }
+  .ab .ab-btn {
+    background: #ff2020;
+    color: #fff;
+    border: none;
+    padding: 9px 22px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+  }
+
+  .ab .ab-ticker {
+    background: #111;
+    overflow: hidden;
+    white-space: nowrap;
+    padding: 7px 0;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    color: #f0ece4;
+  }
+  .ab .ab-ticker-inner {
+    display: inline-block;
+    animation: ticker 14s linear infinite;
+  }
+  .ab .ab-ticker-inner span { padding: 0 24px; }
+
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+</style>
+</head>
+<body>
+
+<p class="page-title">Release Screen — 6 Directions</p>
+<p class="page-sub">Three riffs on A · Two riffs on B · One hybrid — click to select</p>
+
+<div class="grid">
+
+  <!-- A1 -->
+  <div class="card" data-choice="a1" onclick="toggleSelect(this)">
+    <div class="screen">
+      <div class="a1">
+        <div class="nav">
+          <span class="nav-brand">Void Studio</span>
+          <span class="nav-meta">SS26 · DROP 001</span>
+        </div>
+        <div class="hero">
+          <div class="hero-left">
+            <div>
+              <div class="drop-name">VOID<br>STUDIO</div>
+              <div class="garment-line">Oversized Fleece Hoodie · Onyx</div>
+            </div>
+            <div class="spec-list">
+              <div class="spec-row">
+                <span class="spec-k">Material</span>
+                <span class="spec-v">Heavyweight Fleece</span>
+              </div>
+              <div class="spec-row">
+                <span class="spec-k">Silhouette</span>
+                <span class="spec-v">Oversized</span>
+              </div>
+              <div class="spec-row">
+                <span class="spec-k">Details</span>
+                <span class="spec-v">Metal aglets · YKK</span>
+              </div>
+              <div class="spec-row">
+                <span class="spec-k">Identity</span>
+                <span class="spec-v">Streetwear</span>
+              </div>
+            </div>
+          </div>
+          <div class="hero-right">
+            <div class="img-box">
+              <div class="hoodie-shape"></div>
+            </div>
+            <div class="edition-badge">EDITION 001 OF 100</div>
+          </div>
+        </div>
+        <div class="footer">
+          <div>
+            <div class="edition-num">100</div>
+            <div class="edition-sub">Units · Edition 1</div>
+          </div>
+          <button class="release-btn">Release Drop</button>
+        </div>
+        <div class="ticker">
+          <div class="ticker-inner">
+            <span>VOID STUDIO — SS26 — DROP 001 — OVERSIZED FLEECE HOODIE — ONYX — LIMITED 100 &nbsp;&nbsp;&nbsp;&nbsp;</span>
+            <span>VOID STUDIO — SS26 — DROP 001 — OVERSIZED FLEECE HOODIE — ONYX — LIMITED 100 &nbsp;&nbsp;&nbsp;&nbsp;</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-label">
+      <h3>A1 — The Drop, Refined</h3>
+      <p>Red only on CTA · two-column spec layout · cleaner hierarchy</p>
+    </div>
+  </div>
+
+  <!-- A2 -->
+  <div class="card" data-choice="a2" onclick="toggleSelect(this)">
+    <div class="screen">
+      <div class="a2">
+        <div class="bs-header">
+          <span class="bs-dateline">SPRING/SUMMER 2026 — COLLECTION 001</span>
+          <span class="bs-issue">FIRST ISSUE</span>
+        </div>
+        <div class="masthead">
+          <div class="masthead-name">VOID<br>STUDIO</div>
+          <div class="masthead-tagline">The founding collection — designed from nothing</div>
+        </div>
+        <div class="columns">
+          <div class="col-main">
+            <div>
+              <div class="hl">The garment that starts everything</div>
+              <div class="body-text">Heavyweight fleece. Oversized silhouette. Metal aglets on a flat woven drawstring. Nothing decorative — every detail earns its place. This is the first piece from Void Studio, made to be worn for years.</div>
+            </div>
+            <table class="spec-table">
+              <tr><td>Garment</td><td>Oversized Hoodie</td></tr>
+              <tr><td>Material</td><td>Heavyweight Fleece</td></tr>
+              <tr><td>Finish</td><td>YKK · Metal aglets</td></tr>
+              <tr><td>Edition</td><td>1 of 100</td></tr>
+            </table>
+          </div>
+          <div class="col-img">
+            <div class="bs-hoodie"></div>
+            <div class="img-caption">Void Studio SS26<br>Oversized Fleece Hoodie, Onyx</div>
+          </div>
+        </div>
+        <div class="bs-footer">
+          <span class="vol-info">Vol. I · No. 001 · Est. 2026</span>
+          <button class="bs-btn">Publish →</button>
+        </div>
+      </div>
+    </div>
+    <div class="card-label">
+      <h3>A2 — The Broadsheet</h3>
+      <p>Newspaper proportions · Garamond · B&W · editorial columns</p>
+    </div>
+  </div>
+
+  <!-- A3 -->
+  <div class="card" data-choice="a3" onclick="toggleSelect(this)">
+    <div class="screen">
+      <div class="a3">
+        <div class="archive-bar">
+          <div class="ab-brand">Void Studio</div>
+          <div class="ab-meta">ARCHIVE 001 · SS26</div>
+        </div>
+        <div class="archive-hero">
+          <div class="archive-garment">
+            <div class="a3-hoodie"></div>
+          </div>
+          <div class="garment-id">Oversized Fleece Hoodie · Onyx</div>
+          <div class="archive-meta">
+            <div class="am-col">
+              <span class="am-label">Material</span>
+              <span class="am-val">Fleece 380g</span>
+            </div>
+            <div class="am-col">
+              <span class="am-label">Silhouette</span>
+              <span class="am-val">Oversized</span>
+            </div>
+            <div class="am-col">
+              <span class="am-label">Edition</span>
+              <span class="am-val">100 units</span>
+            </div>
+          </div>
+        </div>
+        <div class="archive-footer">
+          <div class="af-left">
+            <span class="af-label">EDITION</span>
+            <span class="af-count">001</span>
+          </div>
+          <button class="archive-btn">Archive & Release</button>
+        </div>
+      </div>
+    </div>
+    <div class="card-label">
+      <h3>A3 — The Archive</h3>
+      <p>Dark field · amber/gold accent · centred garment · edition focus</p>
+    </div>
+  </div>
+
+  <!-- B1 -->
+  <div class="card" data-choice="b1" onclick="toggleSelect(this)">
+    <div class="screen">
+      <div class="b1">
+        <div class="mag-head">
+          <span class="mag-wordmark">Void Studio</span>
+          <span class="mag-issue">VOL. I · SS26</span>
+        </div>
+        <div class="spread">
+          <div class="left">
+            <div>
+              <div class="coll-tag">Collection 001</div>
+              <div class="big-brand">VOID<br>STUDIO</div>
+              <div class="coll-subtitle">The Founding Pieces</div>
+            </div>
+            <p class="story">"Designed for the in-between — the walk to the studio, the late nights, the years before anyone knows your name."</p>
+            <div class="b1-specs">
+              <div>
+                <div class="b1-spec-k">Garment</div>
+                <div class="b1-spec-v">OS Hoodie</div>
+              </div>
+              <div>
+                <div class="b1-spec-k">Material</div>
+                <div class="b1-spec-v">HW Fleece</div>
+              </div>
+              <div>
+                <div class="b1-spec-k">Identity</div>
+                <div class="b1-spec-v">Streetwear</div>
+              </div>
+              <div>
+                <div class="b1-spec-k">Edition</div>
+                <div class="b1-spec-v">1 of 100</div>
+              </div>
+            </div>
+          </div>
+          <div class="right">
+            <div class="b1-img">
+              <div class="b1-hoodie"></div>
+            </div>
+            <div class="material-note">Fleece · 380gsm</div>
+            <div class="folio">01</div>
+          </div>
+        </div>
+        <div class="mag-footer">
+          <span class="edition-note">Edition 1 of 100</span>
+          <button class="b1-btn">Publish Collection →</button>
+        </div>
+      </div>
+    </div>
+    <div class="card-label">
+      <h3>B1 — Dark Editorial</h3>
+      <p>Magazine spread inverted · Playfair on dark · i-D meets Porter</p>
+    </div>
+  </div>
+
+  <!-- B2 -->
+  <div class="card" data-choice="b2" onclick="toggleSelect(this)">
+    <div class="screen">
+      <div class="b2">
+        <div class="lk-top">
+          <span class="lk-brand">Void Studio</span>
+          <span class="lk-coll">Collection 001 · SS26</span>
+        </div>
+        <div class="lk-hero">
+          <div class="lk-img">
+            <div class="lk-hoodie"></div>
+          </div>
+          <div class="lk-corner tl">Oversized Fleece</div>
+          <div class="lk-corner br">Onyx</div>
+        </div>
+        <div class="lk-specs-row">
+          <div class="lk-spec">
+            <span class="lk-sk">Garment</span>
+            <span class="lk-sv">OS Hoodie</span>
+          </div>
+          <div class="lk-spec">
+            <span class="lk-sk">Material</span>
+            <span class="lk-sv">HW Fleece</span>
+          </div>
+          <div class="lk-spec">
+            <span class="lk-sk">Identity</span>
+            <span class="lk-sv">Streetwear</span>
+          </div>
+          <div class="lk-spec">
+            <span class="lk-sk">Edition</span>
+            <span class="lk-sv">1 of 100</span>
+          </div>
+        </div>
+        <div class="lk-caption">
+          <p class="lk-caption-text">"Designed for the in-between — the years before anyone knows your name."</p>
+          <button class="lk-btn">Release →</button>
+        </div>
+      </div>
+    </div>
+    <div class="card-label">
+      <h3>B2 — The Lookbook</h3>
+      <p>Garment as hero · portrait centred · story in caption bar</p>
+    </div>
+  </div>
+
+  <!-- AB -->
+  <div class="card" data-choice="ab" onclick="toggleSelect(this)">
+    <div class="screen">
+      <div class="ab">
+        <div class="ab-header">
+          <div class="ab-brand">Void Studio</div>
+          <div class="ab-header-right">
+            <div class="ab-drop-tag">● LIVE DROP</div>
+            <div class="ab-vol">Vol. I · SS26 · 001</div>
+          </div>
+        </div>
+        <div class="ab-body">
+          <div class="ab-left">
+            <div>
+              <div class="ab-headline">The garment that starts everything</div>
+              <p class="ab-story">"Heavyweight fleece. Every detail earns its place. This is the first piece from Void Studio."</p>
+            </div>
+            <div class="ab-speclist">
+              <div class="ab-spec-row">
+                <span class="ab-sk">Garment</span>
+                <span class="ab-sv">OS Hoodie</span>
+              </div>
+              <div class="ab-spec-row">
+                <span class="ab-sk">Material</span>
+                <span class="ab-sv">HW Fleece</span>
+              </div>
+              <div class="ab-spec-row">
+                <span class="ab-sk">Hardware</span>
+                <span class="ab-sv">YKK · Metal aglets</span>
+              </div>
+            </div>
+          </div>
+          <div class="ab-right">
+            <div class="ab-ghost">VOID</div>
+            <div class="ab-img">
+              <div class="ab-hoodie"></div>
+            </div>
+            <div class="ab-edition">Edition 1 of 100</div>
+          </div>
+        </div>
+        <div class="ab-footer">
+          <div>
+            <div class="ab-edition-large">100 Units</div>
+            <div class="ab-edition-sub">Limited · Drop 001</div>
+          </div>
+          <button class="ab-btn">Release Drop</button>
+        </div>
+        <div class="ab-ticker">
+          <div class="ab-ticker-inner">
+            <span>VOID STUDIO</span><span>SS26</span><span>DROP 001</span><span>OVERSIZED FLEECE HOODIE</span><span>LIMITED 100</span>
+            <span>VOID STUDIO</span><span>SS26</span><span>DROP 001</span><span>OVERSIZED FLEECE HOODIE</span><span>LIMITED 100</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-label">
+      <h3>AB — The Hybrid</h3>
+      <p>Cream (B) + Bebas (A) + Garamond story (B) + red CTA + ticker (A)</p>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
