@@ -262,6 +262,9 @@ export default function App() {
           <button className="generate-btn" onClick={() => setTab('render')}>
             Generate AI render →
           </button>
+          <button className="generate-btn" onClick={() => setShowRelease(true)} style={{ marginTop: 8, background: '#fff', color: '#0a0a0a' }}>
+            Launch Collection →
+          </button>
         </div>
       </aside>
 
